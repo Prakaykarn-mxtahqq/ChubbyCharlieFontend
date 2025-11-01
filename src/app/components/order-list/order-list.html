@@ -1,0 +1,249 @@
+<div class="order-container" (click)="onDocumentClick()">
+  <div class="order-header">
+    <div class="order-header-top">
+      <div class="order-icon">
+        <i class="bi-cart-check"></i>
+      </div>
+      <div class="order-title">
+        <h1>Order Management</h1>
+        <p class="order-subtitle">จัดการออเดอร์จาก 24Shop, Shopee และ Manual</p>
+      </div>
+    </div>
+
+    <div class="order-controls">
+      <div class="order-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="ค้นหาเลขออเดอร์, ชื่อลูกค้า หรือเบอร์โทร"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+
+        <!-- ⭐ เพิ่ม Stats Cards -->
+        <div class="stats-cards">
+          <div class="stats-card">
+            <div class="stats-number">{{totalOrders}}</div>
+            <div class="stats-label">ออเดอร์ทั้งหมด</div>
+          </div>
+
+          <div class="stats-card revenue">
+            <div class="stats-number">{{formatCurrency(totalRevenue)}}</div>
+            <div class="stats-label">ยอดรวมทั้งหมด</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-controls-right">
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option *ngFor="let option of statusOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+
+          <select class="filter-select" [(ngModel)]="selectedSource" (change)="onFilterChange()">
+            <option *ngFor="let option of sourceOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+
+          <select class="filter-select" [(ngModel)]="selectedPaymentStatus" (change)="onFilterChange()">
+            <option *ngFor="let option of paymentStatusOptions" [value]="option.value">
+              {{option.label}}
+            </option>
+          </select>
+        </div>
+
+        <button class="upload-btn" (click)="goToUploadPage()">
+          <i class="bi-cloud-upload"></i>
+          อัพโหลดไฟล์
+        </button>
+
+        <button class="add-order-btn" (click)="goToAddManualOrder()">
+          <i class="bi-plus"></i>
+          เพิ่มออเดอร์
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-table-container">
+    <div class="order-table-header">
+      <h3 class="table-title">รายการออเดอร์</h3>
+      <div class="table-controls">
+        <div class="per-page-selector">
+          <span>แสดง</span>
+          <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span>รายการต่อหน้า</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>กำลังโหลดข้อมูลออเดอร์...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="order-table">
+        <thead>
+        <tr>
+          <th class="col-sn">ลำดับ</th>
+          <th class="col-order-number">เลขออเดอร์</th>
+          <th class="col-source">แหล่งที่มา</th>
+          <th class="col-customer">ลูกค้า</th>
+          <th class="col-date">วันที่สั่ง</th>
+          <th class="col-amount">ยอดรวม</th>
+          <th class="col-status">สถานะออเดอร์</th>
+          <th class="col-payment">สถานะชำระเงิน</th>
+          <th class="col-action">การดำเนินการ</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let order of paginatedOrders; let i = index" (click)="viewOrderDetails(order)" style="cursor: pointer;">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-order-number">
+            <div class="order-number-cell">
+              <span class="order-number">{{order.orderNumber}}</span>
+              <small class="file-name" *ngIf="order.originalFileName">
+                <i class="bi-file-earmark"></i> {{order.originalFileName}}
+              </small>
+            </div>
+          </td>
+          <td class="col-source">
+            <span [class]="getSourceClass(order.source)">
+              {{order.source === 'SHOP_24' ? '24Shop' :
+              order.source === 'SHOPEE' ? 'Shopee' :
+                'Manual'}}
+            </span>
+          </td>
+          <td class="col-customer">
+            <div class="customer-cell">
+              <span class="customer-name">{{order.customerName}}</span>
+              <small class="customer-phone" *ngIf="order.customerPhone">
+                <i class="bi-telephone"></i> {{order.customerPhone}}
+              </small>
+            </div>
+          </td>
+          <td class="col-date">{{formatDate(order.orderDate)}}</td>
+          <td class="col-amount">
+            <strong>{{formatCurrency(order.netAmount)}}</strong>
+          </td>
+          <td class="col-status">
+            <span [class]="getStatusClass(order.status)">
+              {{order.status === 'PENDING' ? 'รอดำเนินการ' :
+              order.status === 'CONFIRMED' ? 'ยืนยันแล้ว' :
+                order.status === 'PROCESSING' ? 'กำลังจัดเตรียม' :
+                  order.status === 'PACKED' ? 'แพ็คของแล้ว' :
+                    order.status === 'SHIPPED' ? 'จัดส่งแล้ว' :
+                      order.status === 'DELIVERED' ? 'ส่งถึงแล้ว' :
+                        order.status === 'CANCELLED' ? 'ยกเลิก' :
+                          order.status === 'RETURNED' ? 'คืนสินค้า' : 'ไม่ระบุ'}}
+            </span>
+          </td>
+          <td class="col-payment">
+            <span [class]="getPaymentStatusClass(order.paymentStatus)">
+              {{order.paymentStatus === 'PAID' ? 'ชำระแล้ว' :
+              order.paymentStatus === 'UNPAID' ? 'ยังไม่ชำระ' :
+                order.paymentStatus === 'REFUNDED' ? 'คืนเงินแล้ว' : 'ไม่ระบุ'}}
+            </span>
+          </td>
+          <td class="col-action" (click)="$event.stopPropagation()">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, order)">
+                จัดการ <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeOrder === order">
+                <li>
+                  <button class="dropdown-item" (click)="viewOrderDetails(order)">
+                    <i class="bi-eye"></i> ดูรายละเอียด
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="editOrder(order)">
+                    <i class="bi-pencil"></i> แก้ไข
+                  </button>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li>
+                  <button class="dropdown-item" (click)="checkStock(order)">
+                    <i class="bi-box-seam"></i> เช็ค Stock
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="deductStock(order)">
+                    <i class="bi-bag-x"></i> ตัด Stock
+                  </button>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li>
+                  <button class="dropdown-item warning" (click)="cancelOrder(order)">
+                    <i class="bi-x-circle"></i> ยกเลิกออเดอร์
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item delete-item" (click)="deleteOrder(order)">
+                    <i class="bi-trash"></i> ลบ
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredOrders.length === 0 && !loading">
+          <td colspan="9" class="empty-state">
+            <i class="bi-cart-x"></i>
+            <p>ไม่พบออเดอร์</p>
+            <small>ลองค้นหาด้วยคำอื่น หรือเพิ่มออเดอร์ใหม่</small>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredOrders.length > 0">
+      <div class="pagination-info">
+        <span>แสดง {{(currentPage - 1) * itemsPerPage + 1}} - {{Math.min(currentPage * itemsPerPage, totalOrders)}} จาก {{totalOrders}} รายการ</span>
+      </div>
+
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+
+          <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+            <a class="page-link" (click)="goToPage(page)">{{page}}</a>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(totalPages)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

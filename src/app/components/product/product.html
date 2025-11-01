@@ -1,0 +1,331 @@
+<div class="product-container" (click)="onDocumentClick()">
+  <div class="product-header">
+    <div class="product-header-top">
+      <div class="product-icon">
+        <i class="bi-box-seam"></i>
+      </div>
+      <div class="product-title">
+        <h1>Product Management</h1>
+        <p class="product-subtitle">จัดการสินค้าที่ผลิตขาย รวมถึงการคำนวณต้นทุนและกำไร</p>
+      </div>
+    </div>
+
+    <div class="product-controls">
+      <div class="product-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="ค้นหาชื่อสินค้า รหัสสินค้า หรือหมวดหมู่"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalProducts}}</div>
+          <div class="stats-label">จำนวนสินค้าทั้งหมด</div>
+        </div>
+      </div>
+
+      <div class="product-controls-right">
+        <!-- ปุ่มสลับ View -->
+        <button class="view-toggle-btn" (click)="toggleViewMode()">
+          <i [class]="viewMode === 'card' ? 'bi-table' : 'bi-grid-3x3-gap'"></i>
+          {{viewMode === 'card' ? 'แสดงแบบตาราง' : 'แสดงแบบการ์ด'}}
+        </button>
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option value="ALL">ทุกสถานะ</option>
+            <option value="ACTIVE">ใช้งาน</option>
+            <option value="INACTIVE">ไม่ใช้งาน</option>
+            <option value="DISCONTINUED">หยุดผลิต</option>
+          </select>
+
+          <select class="filter-select" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+            <option value="">ทุกหมวดหมู่</option>
+            <option *ngFor="let category of categories" [value]="category">{{category}}</option>
+          </select>
+        </div>
+
+        <button class="recalculate-btn" (click)="recalculateAllCosts()" [disabled]="loading">
+          <i class="bi-calculator"></i>
+          คำนวณต้นทุนทั้งหมด
+        </button>
+
+        <button class="add-product-btn" (click)="openAddProductModal()">
+          <i class="bi-plus"></i>
+          เพิ่มสินค้าใหม่
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="product-table-container">
+    <div class="product-table-header">
+      <h3 class="table-title">รายการสินค้า</h3>
+      <div class="table-controls">
+        <div class="per-page-selector">
+          <span>แสดง</span>
+          <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option value="5">5</option>
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+          </select>
+          <span>รายการต่อหน้า</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>กำลังโหลดข้อมูลสินค้า...</p>
+    </div>
+
+    <!-- ⭐ Card View -->
+    <div class="product-cards-grid" *ngIf="!loading && viewMode === 'card'">
+      <div class="product-card" *ngFor="let product of paginatedProducts">
+        <!-- รูปภาพ -->
+        <!-- ⭐ สำหรับ Card View - แก้ส่วน card-image -->
+        <div class="card-image">
+          <img
+            [src]="getSafeImageUrl(product)"
+            [alt]="product.productName"
+            (error)="onImageError($event)"
+            [class.default-image]="product.isUsingDefaultImage">
+
+          <div class="image-overlay">
+            <button class="quick-view-btn" (click)="editProduct(product)">
+              <i class="bi-eye"></i> ดูรายละเอียด
+            </button>
+          </div>
+
+          <!-- Status Badge -->
+              <span [class]="getStatusClass(product.status) + ' status-badge'">
+                {{product.status === 'ACTIVE' ? 'ใช้งาน' :
+                 product.status === 'INACTIVE' ? 'ไม่ใช้งาน' :
+                   product.status === 'DISCONTINUED' ? 'หยุดผลิต' : 'ไม่ระบุ'}}
+               </span>
+        </div>
+
+        <!-- ข้อมูลสินค้า -->
+        <div class="card-body">
+          <div class="card-header-section">
+            <h3 class="card-title">{{product.productName}}</h3>
+            <div class="dropdown-trigger" (click)="toggleDropdown($event, product)">
+              <i class="bi-three-dots-vertical"></i>
+            </div>
+          </div>
+
+          <p class="card-sku">รหัส: {{product.sku}}</p>
+          <p class="card-category" *ngIf="product.category">
+            <i class="bi-tag"></i> {{product.category}}
+          </p>
+
+          <div class="card-description" *ngIf="product.description">
+            {{product.description}}
+          </div>
+
+          <!-- ข้อมูลราคาและกำไร -->
+          <div class="card-pricing">
+            <div class="pricing-item">
+              <span class="pricing-label">ต้นทุน</span>
+              <span class="pricing-value cost">
+            {{formatCurrency(product.calculatedCost)}}
+          </span>
+            </div>
+
+            <div class="pricing-divider"></div>
+
+            <div class="pricing-item">
+              <span class="pricing-label">ราคาขาย</span>
+              <span class="pricing-value price">
+            {{formatCurrency(product.sellingPrice)}}
+          </span>
+            </div>
+          </div>
+
+          <div class="card-profit">
+            <div class="profit-item">
+              <span class="profit-label">กำไร</span>
+              <span class="profit-value" [class.negative]="(product.profitMargin || 0) < 0">
+            {{formatCurrency(product.profitMargin)}}
+          </span>
+            </div>
+
+            <div class="profit-item">
+              <span class="profit-label">% กำไร</span>
+              <span class="profit-percentage" [class.negative]="(product.profitMargin || 0) < 0">
+            {{formatPercentage(product.sellingPrice && product.sellingPrice > 0 ?
+                ((product.profitMargin || 0) / product.sellingPrice) * 100 : 0)}}
+          </span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="card-actions">
+            <button class="card-action-btn primary" (click)="editProduct(product)">
+              <i class="bi-pencil"></i> แก้ไข
+            </button>
+            <button class="card-action-btn secondary" (click)="recalculateProductCost(product)">
+              <i class="bi-calculator"></i> คำนวณ
+            </button>
+          </div>
+
+          <!-- Dropdown Menu -->
+          <ul class="card-dropdown-menu" [class.show]="isDropdownOpen && activeProduct === product">
+            <li><button (click)="viewCostAnalysis(product)">
+              <i class="bi-graph-up"></i> วิเคราะห์ต้นทุน
+            </button></li>
+            <li><button (click)="toggleProductStatus(product)">
+              <i [class]="product.status === 'ACTIVE' ? 'bi-toggle-on' : 'bi-toggle-off'"></i>
+              {{product.status === 'ACTIVE' ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}}
+            </button></li>
+            <li class="divider"></li>
+            <li><button class="delete" (click)="deleteProduct(product)">
+              <i class="bi-trash"></i> ลบ
+            </button></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state-card" *ngIf="filteredProducts.length === 0">
+        <i class="bi-box-seam"></i>
+        <h3>ไม่พบสินค้า</h3>
+        <p>ลองค้นหาด้วยคำอื่น หรือเพิ่มสินค้าใหม่</p>
+        <button class="add-product-btn" (click)="openAddProductModal()">
+          <i class="bi-plus"></i> เพิ่มสินค้าใหม่
+        </button>
+      </div>
+    </div>
+
+    <div class="table-wrapper"  *ngIf="!loading && viewMode === 'table'">
+      <table class="product-table">
+        <thead>
+        <tr>
+          <th class="col-sn">ลำดับ</th>
+          <th class="col-sku">รหัสสินค้า</th>
+          <th class="col-name">ชื่อสินค้า</th>
+          <th class="col-category">หมวดหมู่</th>
+          <th class="col-cost">ต้นทุน</th>
+          <th class="col-price">ราคาขาย</th>
+          <th class="col-profit">กำไร</th>
+          <th class="col-margin">เปอร์เซ็นต์กำไร</th>
+          <th class="col-status">สถานะ</th>
+          <th class="col-action">การดำเนินการ</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let product of paginatedProducts; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-sku">{{product.sku}}</td>
+          <td class="col-name">
+            <div class="product-name-cell">
+              <span class="name">{{product.productName}}</span>
+              <small class="description" *ngIf="product.description">{{product.description}}</small>
+            </div>
+          </td>
+          <td class="col-category">{{product.category || '-'}}</td>
+          <td class="col-cost">{{formatCurrency(product.calculatedCost)}}</td>
+          <td class="col-price">{{formatCurrency(product.sellingPrice)}}</td>
+          <td class="col-profit" [class.negative]="(product.profitMargin || 0) < 0">
+            {{formatCurrency(product.profitMargin)}}
+          </td>
+          <td class="col-margin" [class.negative]="(product.profitMargin || 0) < 0">
+            {{formatPercentage(product.sellingPrice && product.sellingPrice > 0 ? ((product.profitMargin || 0) / product.sellingPrice) * 100 : 0)}}
+          </td>
+          <td class="col-status">
+            <span [class]="getStatusClass(product.status)">
+              {{product.status === 'ACTIVE' ? 'ใช้งาน' :
+              product.status === 'INACTIVE' ? 'ไม่ใช้งาน' :
+                product.status === 'DISCONTINUED' ? 'หยุดผลิต' : 'ไม่ระบุ'}}
+            </span>
+          </td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, product)">
+                จัดการ <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeProduct === product">
+                <li>
+                  <button class="dropdown-item" (click)="editProduct(product)">
+                    <i class="bi-pencil"></i> แก้ไข
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="recalculateProductCost(product)">
+                    <i class="bi-calculator"></i> คำนวณต้นทุนใหม่
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="viewCostAnalysis(product)">
+                    <i class="bi-graph-up"></i> วิเคราะห์ต้นทุน
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="toggleProductStatus(product)">
+                    <i class="bi-toggle-on" *ngIf="product.status === 'ACTIVE'"></i>
+                    <i class="bi-toggle-off" *ngIf="product.status !== 'ACTIVE'"></i>
+                    {{product.status === 'ACTIVE' ? 'ปิดใช้งาน' : 'เปิดใช้งาน'}}
+                  </button>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li>
+                  <button class="dropdown-item delete-item" (click)="deleteProduct(product)">
+                    <i class="bi-trash"></i> ลบ
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredProducts.length === 0 && !loading">
+          <td colspan="10" class="empty-state">
+            <i class="bi-box-seam"></i>
+            <p>ไม่พบสินค้า</p>
+            <small>ลองค้นหาด้วยคำอื่น หรือเพิ่มสินค้าใหม่</small>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredProducts.length > 0">
+      <div class="pagination-info">
+        <span>แสดง {{(currentPage - 1) * itemsPerPage + 1}} - {{Math.min(currentPage * itemsPerPage, totalProducts)}} จาก {{totalProducts}} รายการ</span>
+      </div>
+
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+
+          <li class="page-item" *ngFor="let page of getPageNumbers()" [class.active]="page === currentPage">
+            <a class="page-link" (click)="goToPage(page)">{{page}}</a>
+          </li>
+
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(totalPages)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-double-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

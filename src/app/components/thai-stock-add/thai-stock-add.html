@@ -1,0 +1,163 @@
+<div class="main-container">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{isEditMode ? 'Edit Thai Stock' : 'New Thai Stock'}}</h1>
+      <p>{{isEditMode ? 'Update Thai stock details' : 'Add a new product from Thailand'}}</p>
+    </div>
+
+    <form class="thai-stock-form" [formGroup]="thaiStockForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-fields">
+          <div class="field-row">
+            <div class="form-group">
+              <label for="name">Product Name <span class="required">*</span></label>
+              <input
+                id="name"
+                formControlName="name"
+                placeholder="Enter product name"
+                class="form-control"
+                [class.error]="thaiStockForm.get('name')?.invalid && thaiStockForm.get('name')?.touched">
+              <div class="error-message" *ngIf="thaiStockForm.get('name')?.invalid && thaiStockForm.get('name')?.touched">
+                Product name is required and must be at least 2 characters
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="stockLotId">Stock Lot</label>
+              <select
+                id="stockLotId"
+                formControlName="stockLotId"
+                class="form-control">
+                <option value="">Select a stock lot (optional)</option>
+                <option *ngFor="let lot of stockLots" [value]="lot.stockLotId">{{lot.lotName}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="quantity">Quantity <span class="required">*</span></label>
+              <input
+                id="quantity"
+                formControlName="quantity"
+                placeholder="Enter quantity"
+                class="form-control"
+                type="number"
+                min="0"
+                step="1"
+                [class.error]="thaiStockForm.get('quantity')?.invalid && thaiStockForm.get('quantity')?.touched">
+              <div class="error-message" *ngIf="thaiStockForm.get('quantity')?.invalid && thaiStockForm.get('quantity')?.touched">
+                Quantity is required and must be 0 or greater
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="priceTotal">Total Price (฿) <span class="required">*</span></label>
+              <input
+                id="priceTotal"
+                formControlName="priceTotal"
+                placeholder="Enter total price"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                [class.error]="thaiStockForm.get('priceTotal')?.invalid && thaiStockForm.get('priceTotal')?.touched">
+              <div class="error-message" *ngIf="thaiStockForm.get('priceTotal')?.invalid && thaiStockForm.get('priceTotal')?.touched">
+                Total price is required and must be 0 or greater
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="shippingCost">Shipping Cost (฿)</label>
+              <input
+                id="shippingCost"
+                formControlName="shippingCost"
+                placeholder="Enter shipping cost"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01">
+            </div>
+            <div class="form-group">
+              <label for="status">Status <span class="required">*</span></label>
+              <select
+                id="status"
+                formControlName="status"
+                class="form-control"
+                [class.error]="thaiStockForm.get('status')?.invalid && thaiStockForm.get('status')?.touched">
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+                <option value="OUT_OF_STOCK">Out of Stock</option>
+              </select>
+              <div class="error-message" *ngIf="thaiStockForm.get('status')?.invalid && thaiStockForm.get('status')?.touched">
+                Status is required
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="shopURL">Shop URL</label>
+              <input
+                id="shopURL"
+                formControlName="shopURL"
+                placeholder="Enter shop URL (optional)"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="back-btn" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Back
+        </button>
+        <button type="submit" class="submit-btn" [disabled]="thaiStockForm.invalid">
+          <i class="bi bi-check-circle" *ngIf="!isEditMode"></i>
+          <i class="bi bi-pencil-square" *ngIf="isEditMode"></i>
+          {{isEditMode ? 'Update Thai Stock' : 'Add Thai Stock'}}
+        </button>
+      </div>
+    </form>
+
+    <!-- Thai Stock Preview Card -->
+    <div class="thai-stock-preview" *ngIf="thaiStockForm.value.name">
+      <h3>Thai Stock Preview</h3>
+      <div class="preview-card">
+        <div class="preview-header">
+          <h4>{{thaiStockForm.value.name || 'Product Name'}}</h4>
+          <span class="preview-status" [ngClass]="'status-' + (thaiStockForm.value.status || 'ACTIVE').toLowerCase()">
+            {{thaiStockForm.value.status || 'ACTIVE'}}
+          </span>
+        </div>
+        <div class="preview-details">
+          <div class="detail-item">
+            <span class="label">Quantity:</span>
+            <span class="value">{{thaiStockForm.value.quantity || 0}} units</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Total Price:</span>
+            <span class="value price">฿{{(thaiStockForm.value.priceTotal || 0).toFixed(2)}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Shipping Cost:</span>
+            <span class="value">฿{{(thaiStockForm.value.shippingCost || 0).toFixed(2)}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Total Cost:</span>
+            <span class="value price">฿{{totalCost.toFixed(2)}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Price per Unit:</span>
+            <span class="value">฿{{pricePerUnit.toFixed(2)}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Final Price per Unit:</span>
+            <span class="value price">฿{{pricePerUnitWithShipping.toFixed(2)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

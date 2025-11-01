@@ -1,0 +1,184 @@
+<div class="main-container" *ngIf="!loading && stockLot">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-text">
+          <h1>{{stockLot.lotName}}</h1>
+          <p>รายละเอียด Stock Lot</p>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusBadgeClass()">
+          {{getStatusLabel()}}
+        </span>
+      </div>
+    </div>
+
+    <!-- Stock Lot Info Card -->
+    <div class="info-card">
+      <h3>ข้อมูล Stock Lot</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">ชื่อ Lot:</span>
+          <span class="value">{{stockLot.lotName}}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">สถานะ:</span>
+          <span class="value">{{getStatusLabel()}}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">วันที่นำเข้า:</span>
+          <span class="value">{{formatDate(stockLot.importDate)}}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">วันที่ของถึง:</span>
+          <span class="value">{{formatDate(stockLot.arrivalDate)}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Items Card -->
+    <div class="items-card">
+      <div class="card-header">
+        <h3>รายการสินค้า ({{stockLot.items?.length || 0}} รายการ)</h3>
+        <div class="add-items-buttons">
+        </div>
+      </div>
+
+      <div class="items-list" *ngIf="stockLot.items && stockLot.items.length > 0">
+        <div class="item" *ngFor="let item of stockLot.items; let i = index">
+          <div class="item-number">{{i + 1}}</div>
+          <div class="item-details">
+            <div class="item-name">{{item.productName || item.name || 'ไม่มีชื่อ'}}</div>
+            <div class="item-info">
+              <span *ngIf="item.quantity">จำนวน: {{item.quantity}}</span>
+              <span *ngIf="getItemUnitPrice(item)">ราคา/หน่วย: {{formatCurrency(getItemUnitPrice(item))}}</span>
+            </div>
+          </div>
+          <div class="item-cost">
+            {{formatCurrency(getItemTotalCost(item))}}
+          </div>
+        </div>
+      </div>
+
+      <div class="no-items" *ngIf="!stockLot.items || stockLot.items.length === 0">
+        <i class="bi bi-inbox"></i>
+        <p>ยังไม่มีสินค้าใน Stock Lot นี้</p>
+        <div class="add-first-items-buttons">
+          <button class="add-first-item-btn china" (click)="addChinaStock()">
+            <i class="bi bi-geo-alt-fill"></i>
+            เพิ่มสินค้าจากจีน
+          </button>
+          <button class="add-first-item-btn thai" (click)="addThaiStock()">
+            <i class="bi bi-house-fill"></i>
+            เพิ่มสินค้าจากไทย
+          </button>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="summary-section" *ngIf="stockLot.items && stockLot.items.length > 0">
+        <div class="summary-row">
+          <span class="label">จำนวนสินค้าทั้งหมด:</span>
+          <span class="value">{{stockLot.items.length}} รายการ</span>
+        </div>
+        <div class="summary-row total">
+          <span class="label">ยอดรวมทั้งหมด:</span>
+          <span class="value">{{formatCurrency(totalCost)}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Card -->
+    <div class="actions-card">
+      <h3>การดำเนินการ</h3>
+
+      <div class="actions-grid">
+        <!-- เพิ่มสินค้าจากจีน -->
+        <button
+          class="action-btn china"
+          (click)="addChinaStock()"
+          [disabled]="stockLot.status === 'COMPLETED'">
+          <i class="bi bi-geo-alt-fill"></i>
+          เพิ่มสินค้าจากจีน
+        </button>
+
+        <!-- เพิ่มสินค้าจากไทย -->
+        <button
+          class="action-btn thai"
+          (click)="addThaiStock()"
+          [disabled]="stockLot.status === 'COMPLETED'">
+          <i class="bi bi-house-fill"></i>
+          เพิ่มสินค้าจากไทย
+        </button>
+        <!-- แก้ไข -->
+        <button
+          class="action-btn primary"
+          (click)="editStockLot()"
+          [disabled]="stockLot.status === 'COMPLETED'">
+          <i class="bi bi-pencil"></i>
+          แก้ไข Stock Lot
+        </button>
+
+
+        <!-- เปลี่ยนสถานะ -->
+        <button
+          class="action-btn info"
+          (click)="updateStatus('ARRIVED')"
+          [disabled]="stockLot.status === 'COMPLETED' || stockLot.status === 'ARRIVED'">
+          <i class="bi bi-truck"></i>
+          สินค้าถึงแล้ว
+        </button>
+        <!-- ⭐ Complete & Create Transaction (ปุ่มหลัก) -->
+        <button
+          class="action-btn complete-btn"
+          (click)="completeStockLot()"
+          [disabled]="stockLot.status === 'COMPLETED' || !stockLot.items || stockLot.items.length === 0">
+          <i class="bi bi-check-circle-fill"></i>
+          Complete & Create Transaction
+        </button>
+        <!-- ลบ -->
+        <button
+          class="action-btn danger"
+          (click)="deleteStockLot()"
+          [disabled]="stockLot.status === 'COMPLETED'">
+          <i class="bi bi-trash"></i>
+          ลบ Stock Lot
+        </button>
+
+        <!-- กลับ -->
+        <button class="action-btn secondary" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          กลับ
+        </button>
+      </div>
+
+      <!-- Help Text -->
+      <div class="help-text" *ngIf="stockLot.status !== 'COMPLETED'">
+        <i class="bi bi-info-circle"></i>
+        <div>
+          <strong>วิธีใช้งาน:</strong>
+          <ol>
+            <li>เพิ่มสินค้าเข้า Stock Lot
+              <ul>
+                <li><strong>🇨🇳 จากจีน:</strong> คลิก "เพิ่มสินค้าจากจีน"</li>
+                <li><strong>🇹🇭 จากไทย:</strong> คลิก "เพิ่มสินค้าจากไทย"</li>
+              </ul>
+            </li>
+            <li>ตรวจสอบยอดรวมให้ถูกต้อง</li>
+            <li>คลิก "Complete & Create Transaction" เพื่อสร้าง Transaction รายจ่ายอัตโนมัติ</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="completed-notice" *ngIf="stockLot.status === 'COMPLETED'">
+        <i class="bi bi-check-circle-fill"></i>
+        <span>Stock Lot นี้ถูก Complete แล้ว และไม่สามารถแก้ไขได้</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>กำลังโหลดข้อมูล...</p>
+</div>

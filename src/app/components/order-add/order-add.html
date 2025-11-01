@@ -1,0 +1,301 @@
+<div class="add-order-container" *ngIf="!loading">
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi-arrow-left"></i> กลับ
+    </button>
+    <h1>{{isEditMode ? 'แก้ไขออเดอร์' : 'เพิ่มออเดอร์ใหม่'}}</h1>
+    <p class="subtitle">กรอกข้อมูลออเดอร์และรายการสินค้า</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="order-form">
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-info-circle"></i>
+        <h2>ข้อมูลออเดอร์</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>เลขที่ออเดอร์</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="orderNumber"
+            name="orderNumber"
+            placeholder="ปล่อยว่างเพื่อสร้างอัตโนมัติ">
+          <small class="form-hint">หากปล่อยว่าง ระบบจะสร้างเลขที่ออเดอร์อัตโนมัติ</small>
+        </div>
+
+        <div class="form-group">
+          <label class="required">แหล่งที่มา</label>
+          <select class="form-control" [(ngModel)]="source" name="source" required>
+            <option value="MANUAL">Manual</option>
+            <option value="SHOP_24">24Shop</option>
+            <option value="SHOPEE">Shopee</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">วันที่สั่ง</label>
+          <input
+            type="datetime-local"
+            class="form-control"
+            [(ngModel)]="orderDate"
+            name="orderDate"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>วันที่ส่ง</label>
+          <input
+            type="datetime-local"
+            class="form-control"
+            [(ngModel)]="deliveryDate"
+            name="deliveryDate">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-person"></i>
+        <h2>ข้อมูลลูกค้า</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label class="required">ชื่อลูกค้า</label>
+          <input
+            type="text"
+            class="form-control"
+            [(ngModel)]="customerName"
+            name="customerName"
+            placeholder="ชื่อ-นามสกุล"
+            required>
+        </div>
+
+        <div class="form-group">
+          <label>เบอร์โทรศัพท์</label>
+          <input
+            type="tel"
+            class="form-control"
+            [(ngModel)]="customerPhone"
+            name="customerPhone"
+            placeholder="0812345678">
+        </div>
+
+        <div class="form-group full-width">
+          <label>ที่อยู่จัดส่ง</label>
+          <textarea
+            class="form-control"
+            [(ngModel)]="shippingAddress"
+            name="shippingAddress"
+            rows="3"
+            placeholder="ที่อยู่สำหรับจัดส่งสินค้า"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-box-seam"></i>
+        <h2>รายการสินค้า</h2>
+        <button type="button" class="add-item-btn" (click)="addOrderItem()">
+          <i class="bi-plus-circle"></i> เพิ่มรายการ
+        </button>
+      </div>
+
+      <div class="items-container">
+        <div class="item-card" *ngFor="let item of orderItems; let i = index">
+          <div class="item-header">
+            <span class="item-number">รายการที่ {{i + 1}}</span>
+            <button
+              type="button"
+              class="remove-item-btn"
+              (click)="removeOrderItem(i)"
+              *ngIf="orderItems.length > 1">
+              <i class="bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="item-body">
+            <div class="form-row">
+              <div class="form-group flex-2" style="position: relative;">
+                <label class="required">ชื่อสินค้า</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="item.productName"
+                  [name]="'productName_' + i"
+                  (input)="onProductSearch(i, item.productName)"
+                  (blur)="hideSuggestions(i)"
+                  placeholder="ชื่อสินค้า"
+                  required>
+
+                <div class="product-suggestions" *ngIf="showSuggestions[i] && filteredProducts.length > 0">
+                  <div
+                    class="suggestion-item"
+                    *ngFor="let product of filteredProducts.slice(0, 5)"
+                    (mousedown)="selectProduct(i, product)">
+                    <span class="product-name">{{product.productName}}</span>
+                    <span class="product-sku" *ngIf="product.sku">SKU: {{product.sku}}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group flex-1">
+                <label>SKU</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="item.productSku"
+                  [name]="'productSku_' + i"
+                  placeholder="รหัสสินค้า">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="required">จำนวน</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="item.quantity"
+                  [name]="'quantity_' + i"
+                  (input)="calculateItemTotal(i)"
+                  min="1"
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label class="required">ราคา/หน่วย</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="item.unitPrice"
+                  [name]="'unitPrice_' + i"
+                  (input)="calculateItemTotal(i)"
+                  step="0.01"
+                  min="0"
+                  required>
+              </div>
+
+              <div class="form-group">
+                <label>ส่วนลด</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="item.discount"
+                  [name]="'discount_' + i"
+                  (input)="calculateItemTotal(i)"
+                  step="0.01"
+                  min="0">
+              </div>
+
+              <div class="form-group">
+                <label>ยอดรวม</label>
+                <input
+                  type="text"
+                  class="form-control total-field"
+                  [value]="formatCurrency(item.totalPrice)"
+                  readonly>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label>หมายเหตุ</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="item.notes"
+                  [name]="'itemNotes_' + i"
+                  placeholder="หมายเหตุเพิ่มเติม">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-calculator"></i>
+        <h2>สรุปยอดชำระ</h2>
+      </div>
+
+      <div class="summary-container">
+        <div class="summary-left">
+          <div class="form-group">
+            <label>ค่าจัดส่ง</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="shippingFee"
+              name="shippingFee"
+              (input)="calculateTotals()"
+              step="0.01"
+              min="0">
+          </div>
+
+          <div class="form-group">
+            <label>ส่วนลดทั้งออเดอร์</label>
+            <input
+              type="number"
+              class="form-control"
+              [(ngModel)]="discount"
+              name="discount"
+              (input)="calculateTotals()"
+              step="0.01"
+              min="0">
+          </div>
+
+          <div class="form-group full-width">
+            <label>หมายเหตุ</label>
+            <textarea
+              class="form-control"
+              [(ngModel)]="notes"
+              name="notes"
+              rows="3"
+              placeholder="หมายเหตุเพิ่มเติมสำหรับออเดอร์"></textarea>
+          </div>
+        </div>
+
+        <div class="summary-right">
+          <div class="summary-row">
+            <span class="label">ยอดรวมสินค้า:</span>
+            <span class="value">{{formatCurrency(subtotal)}}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">ค่าจัดส่ง:</span>
+            <span class="value">{{formatCurrency(shippingFee)}}</span>
+          </div>
+          <div class="summary-row">
+            <span class="label">ส่วนลด:</span>
+            <span class="value discount">-{{formatCurrency(discount)}}</span>
+          </div>
+          <div class="summary-row total">
+            <span class="label">ยอดสุทธิ:</span>
+            <span class="value">{{formatCurrency(netAmount)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="goBack()">
+        <i class="bi-x-circle"></i> ยกเลิก
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="submitting">
+        <div class="loading-spinner" *ngIf="submitting"></div>
+        <i class="bi-check-circle" *ngIf="!submitting"></i>
+        {{submitting ? 'กำลังบันทึก...' : (isEditMode ? 'บันทึกการแก้ไข' : 'สร้างออเดอร์')}}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-spinner"></div>
+  <p>กำลังโหลดข้อมูล...</p>
+</div>

@@ -1,0 +1,157 @@
+<div class="staff-container">
+  <div class="staff-header">
+    <div class="staff-header-top">
+      <div class="staff-icon">
+        <i class="bi-people"></i>
+      </div>
+      <div class="staff-title">
+        <h1>All Staff</h1>
+        <p class="staff-subtitle">View, search for and add new staff</p>
+      </div>
+    </div>
+
+    <div class="staff-controls">
+      <div class="staff-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Enter search word"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalStaff}}</div>
+          <div class="stats-label">Total number of staff</div>
+        </div>
+      </div>
+
+      <div class="staff-controls-right">
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedFilter" (change)="onFilterChange()">
+            <option value="">All roles</option>
+            <option value="Admin">Admin</option>
+            <option value="Manager">Manager</option>
+            <option value="Developer">Developer</option>
+            <option value="Designer">Designer</option>
+            <option value="HR">HR Officer</option>
+            <option value="Analyst">Business Analyst</option>
+            <option value="Tester">QA Tester</option>
+            <option value="Operations">Operations</option>
+            <option value="Support">Support</option>
+          </select>
+        </div>
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+          </select>
+        </div>
+        <button class="add-staff-btn" (click)="openAddStaffModal()">
+          <i class="bi-plus"></i>
+          Add New Staff
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="staff-table-container">
+    <div class="staff-table-header">
+      <h3 class="table-title">All Staff</h3>
+      <div class="table-controls">
+        <div class="per-page-selector">
+          <span>Showing</span>
+          <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span>per page</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading staff data...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="staff-table">
+        <thead>
+        <tr>
+          <th class="col-sn">S/N</th>
+          <th class="col-name">Name</th>
+          <th class="col-address">Address</th>
+          <th class="col-phone">Phone</th>
+          <th class="col-type">Type</th>
+          <th class="col-salary">Salary/Wage</th>
+          <th class="col-role">Role</th>
+          <th class="col-email">Email</th>
+          <th class="col-status">Status</th>
+          <th class="col-action">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let staff of paginatedStaff; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-name">{{staff.empName}}</td>
+          <td class="col-address">{{staff.empAddress}}</td>
+          <td class="col-phone">{{staff.empPhone}}</td>
+          <td class="col-type">{{staff.empType}}</td>
+          <td class="col-salary">
+            {{staff.empType === 'DAILY' ? (staff.dailyWage | currency:'THB') : (staff.monthlySalary | currency:'THB')}}
+          </td>
+          <td class="col-role">{{staff.role}}</td>
+          <td class="col-email">{{staff.email}}</td>
+          <td class="col-status">
+            <span [class]="getStatusClass(staff.status)">{{staff.status || 'N/A'}}</span>
+          </td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, staff)">
+                Actions <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeStaff === staff">
+                <li>
+                  <button class="dropdown-item" (click)="editStaff(staff)">Edit</button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="deleteStaff(staff)">Delete</button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredStaff.length === 0 && !loading">
+          <td colspan="10" class="empty-state">
+            <i class="bi-people"></i>
+            <p>No staff members found</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredStaff.length > 0">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

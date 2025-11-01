@@ -1,0 +1,302 @@
+<div class="main-container">
+  <form class="product-form" [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <!-- Basic Product Information -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>ข้อมูลพื้นฐานสินค้า</h3>
+        <p>กรอกข้อมูลหลักของสินค้า</p>
+      </div>
+
+      <!-- ⭐ เพิ่ม: Upload รูปภาพ -->
+      <div class="form-section">
+        <div class="section-header">
+          <h3>รูปภาพสินค้า</h3>
+          <p>อัปโหลดรูปภาพสินค้า (ถ้าไม่อัปโหลดจะใช้รูป Default)</p>
+        </div>
+
+        <div class="image-upload-section">
+          <div class="image-preview-container">
+            <img
+              [src]="imagePreview || '/images/products/default-product.jpg'"
+              alt="Product Preview"
+              class="image-preview"
+              [class.default]="!imagePreview || imagePreview.includes('default-product.jpg')">
+
+            <div class="image-badge" *ngIf="!selectedFile && !currentImageUrl">
+              <i class="bi-image"></i> Default Image
+            </div>
+          </div>
+
+          <div class="image-controls">
+            <label class="upload-btn">
+              <input
+                type="file"
+                (change)="onFileSelect($event)"
+                accept="image/jpeg,image/jpg,image/png"
+                hidden>
+              <i class="bi-cloud-upload"></i>
+              {{selectedFile ? 'เปลี่ยนรูปภาพ' : 'เลือกรูปภาพ'}}
+            </label>
+
+            <button
+              type="button"
+              class="remove-image-btn"
+              (click)="removeImage()"
+              *ngIf="selectedFile">
+              <i class="bi-trash"></i>
+              ลบรูป
+            </button>
+
+            <p class="upload-hint">
+              รองรับ: JPG, JPEG, PNG (สูงสุด 10MB)
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="sku">รหัสสินค้า <span class="required">*</span></label>
+          <input
+            id="sku"
+            formControlName="sku"
+            placeholder="เช่น SOCK-001, PACK-12"
+            class="form-control"
+            [class.error]="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">
+          <div class="error-message" *ngIf="productForm.get('sku')?.invalid && productForm.get('sku')?.touched">
+            รหัสสินค้าจำเป็นต้องกรอก และต้องมีอย่างน้อย 2 ตัวอักษร
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="category">หมวดหมู่</label>
+          <select id="category" formControlName="category" class="form-control">
+            <option value="">เลือกหมวดหมู่</option>
+            <option *ngFor="let category of categories" [value]="category">{{category}}</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="productName">ชื่อสินค้า <span class="required">*</span></label>
+        <input
+          id="productName"
+          formControlName="productName"
+          placeholder="เช่น ถุงเท้าสีดำข้อสั้น แพ็ค 12 คู่"
+          class="form-control"
+          [class.error]="productForm.get('productName')?.invalid && productForm.get('productName')?.touched">
+        <div class="error-message" *ngIf="productForm.get('productName')?.invalid && productForm.get('productName')?.touched">
+          ชื่อสินค้าจำเป็นต้องกรอก และต้องมีอย่างน้อย 2 ตัวอักษร
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="description">คำอธิบายสินค้า</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="รายละเอียดเพิ่มเติมของสินค้า"
+          class="form-control textarea"
+          rows="3">
+          </textarea>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="sellingPrice">ราคาขาย (฿) <span class="required">*</span></label>
+          <input
+            id="sellingPrice"
+            formControlName="sellingPrice"
+            placeholder="0.00"
+            class="form-control"
+            type="number"
+            min="0"
+            step="0.01"
+            [class.error]="productForm.get('sellingPrice')?.invalid && productForm.get('sellingPrice')?.touched">
+          <div class="error-message" *ngIf="productForm.get('sellingPrice')?.invalid && productForm.get('sellingPrice')?.touched">
+            ราคาขายจำเป็นต้องกรอก และต้องมากกว่าหรือเท่ากับ 0
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="status">สถานะ <span class="required">*</span></label>
+          <select
+            id="status"
+            formControlName="status"
+            class="form-control"
+            [class.error]="productForm.get('status')?.invalid && productForm.get('status')?.touched">
+            <option value="ACTIVE">ใช้งาน</option>
+            <option value="INACTIVE">ไม่ใช้งาน</option>
+            <option value="DISCONTINUED">หยุดผลิต</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Ingredients Section -->
+    <div class="form-section">
+      <div class="section-header">
+        <h3>ส่วนประกอบสินค้า</h3>
+        <p>กำหนดวัตถุดิบและส่วนประกอบที่ใช้ในการผลิตสินค้า</p>
+      </div>
+
+      <div formArrayName="ingredients">
+        <div class="ingredient-item" *ngFor="let ingredient of ingredientsArray.controls; let i = index" [formGroupName]="i">
+          <div class="ingredient-header">
+            <h4>ส่วนประกอบที่ {{i + 1}}</h4>
+            <button type="button" class="remove-ingredient-btn" (click)="removeIngredient(i)" [disabled]="ingredientsArray.length === 1">
+              <i class="bi-trash"></i>
+            </button>
+          </div>
+
+          <div class="ingredient-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>ชื่อส่วนประกอบ <span class="required">*</span></label>
+                <input
+                  formControlName="ingredientName"
+                  placeholder="เช่น ถุงเท้าสีดำข้อสั้น"
+                  class="form-control"
+                  [class.error]="ingredient.get('ingredientName')?.invalid && ingredient.get('ingredientName')?.touched">
+                <div class="error-message" *ngIf="ingredient.get('ingredientName')?.invalid && ingredient.get('ingredientName')?.touched">
+                  ชื่อส่วนประกอบจำเป็นต้องกรอก
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>เลือกจาก Stock</label>
+                <select
+                  formControlName="stockItemId"
+                  class="form-control"
+                  (change)="onStockItemChange(i, $any($event.target).value)">
+                  <option value="">เลือก Stock Item</option>
+                  <option *ngFor="let stock of stockOptions" [value]="stock.stockItemId">
+                    {{getStockOptionDisplay(stock)}}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>จำนวนที่ต้องใช้ <span class="required">*</span></label>
+                <input
+                  formControlName="requiredQuantity"
+                  placeholder="0"
+                  class="form-control"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  [class.error]="ingredient.get('requiredQuantity')?.invalid && ingredient.get('requiredQuantity')?.touched">
+                <div class="error-message" *ngIf="ingredient.get('requiredQuantity')?.invalid && ingredient.get('requiredQuantity')?.touched">
+                  จำนวนจำเป็นต้องกรอก และต้องมากกว่า 0
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>หน่วย <span class="required">*</span></label>
+                <input
+                  formControlName="unit"
+                  placeholder="เช่น คู่, ชิ้น, ใบ"
+                  class="form-control"
+                  list="commonUnits"
+                  [class.error]="ingredient.get('unit')?.invalid && ingredient.get('unit')?.touched">
+                <datalist id="commonUnits">
+                  <option *ngFor="let unit of commonUnits" [value]="unit">
+                </datalist>
+                <div class="error-message" *ngIf="ingredient.get('unit')?.invalid && ingredient.get('unit')?.touched">
+                  หน่วยจำเป็นต้องกรอก
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>หมายเหตุ</label>
+              <input
+                formControlName="notes"
+                placeholder="หมายเหตุเพิ่มเติม"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="add-ingredient-btn" (click)="addIngredient()">
+        <i class="bi-plus"></i>
+        เพิ่มส่วนประกอบ
+      </button>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="back-btn" (click)="goBack()" [disabled]="loading">
+        <i class="bi bi-arrow-left"></i>
+        กลับ
+      </button>
+      <button type="submit" class="submit-btn" [disabled]="!isFormValid() || loading">
+        <div class="loading-spinner" *ngIf="loading"></div>
+        <i class="bi bi-check-circle" *ngIf="!isEditMode && !loading"></i>
+        <i class="bi bi-pencil-square" *ngIf="isEditMode && !loading"></i>
+        {{loading ? 'กำลังดำเนินการ...' : (isEditMode ? 'อัปเดตสินค้า' : 'เพิ่มสินค้า')}}
+      </button>
+    </div>
+  </form>
+
+  <!-- Product Preview Card -->
+  <div class="product-preview" *ngIf="productForm.value.productName || productForm.value.sku">
+    <h3>ตัวอย่างสินค้า</h3>
+    <div class="preview-card">
+      <div class="preview-header">
+        <h4>{{productForm.value.productName || 'ชื่อสินค้า'}}</h4>
+        <span class="preview-status"
+              [class.active]="productForm.value.status === 'ACTIVE'"
+              [class.inactive]="productForm.value.status === 'INACTIVE'"
+              [class.discontinued]="productForm.value.status === 'DISCONTINUED'">
+            {{productForm.value.status === 'ACTIVE' ? 'ใช้งาน' :
+          productForm.value.status === 'INACTIVE' ? 'ไม่ใช้งาน' :
+            productForm.value.status === 'DISCONTINUED' ? 'หยุดผลิต' : 'ใช้งาน'}}
+          </span>
+      </div>
+
+      <div class="preview-details">
+        <div class="detail-item">
+          <span class="label">รหัสสินค้า:</span>
+          <span class="value">{{productForm.value.sku || '-'}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">หมวดหมู่:</span>
+          <span class="value">{{productForm.value.category || '-'}}</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">ราคาขาย:</span>
+          <span class="value price">฿{{productForm.value.sellingPrice || 0}}</span>
+        </div>
+        <div class="detail-item" *ngIf="!isEditMode">
+          <span class="label">ต้นทุนประมาณ:</span>
+          <span class="value cost">฿{{calculateEstimatedCost().toFixed(2)}}</span>
+        </div>
+        <div class="detail-item" *ngIf="!isEditMode">
+          <span class="label">กำไรประมาณ:</span>
+          <span class="value profit" [class.negative]="calculateEstimatedProfit() < 0">
+              ฿{{calculateEstimatedProfit().toFixed(2)}}
+            </span>
+        </div>
+        <div class="detail-item" *ngIf="!isEditMode">
+          <span class="label">เปอร์เซ็นต์กำไร:</span>
+          <span class="value margin" [class.negative]="calculateProfitMargin() < 0">
+              {{calculateProfitMargin().toFixed(1)}}%
+            </span>
+        </div>
+      </div>
+
+      <div class="ingredients-preview" *ngIf="ingredientsArray.length > 0">
+        <h5>ส่วนประกอบ:</h5>
+        <ul class="ingredients-list">
+          <li *ngFor="let ingredient of ingredientsArray.controls" class="ingredient-preview-item">
+            <span class="ingredient-name">{{ingredient.get('ingredientName')?.value || 'ไม่ระบุชื่อ'}}</span>
+            <span class="ingredient-quantity">{{ingredient.get('requiredQuantity')?.value || 0}} {{ingredient.get('unit')?.value || 'หน่วย'}}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

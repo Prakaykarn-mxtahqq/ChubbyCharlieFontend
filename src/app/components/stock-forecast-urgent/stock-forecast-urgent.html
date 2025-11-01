@@ -1,0 +1,203 @@
+<div class="urgent-items-container">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <i class="bi-arrow-left"></i>
+        Back
+      </button>
+      <div class="header-info">
+        <div class="header-icon">
+          <i class="bi-exclamation-triangle-fill"></i>
+        </div>
+        <div class="header-text">
+          <h1>Urgent Stock Items</h1>
+          <p class="header-subtitle">Items requiring immediate attention and reorder</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-section">
+    <div class="controls-left">
+      <div class="search-container">
+        <i class="bi-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search by stock name..."
+          [(ngModel)]="searchTerm"
+          (input)="onSearch()"
+        />
+      </div>
+      <div class="stats-badge">
+        <span class="stats-number">{{filteredItems.length}}</span>
+        <span class="stats-label">Urgent Items</span>
+      </div>
+      <div class="stats-badge cost">
+        <span class="stats-number">{{formatCurrency(getTotalEstimatedCost())}}</span>
+        <span class="stats-label">Total Cost</span>
+      </div>
+    </div>
+
+    <div class="controls-right">
+      <select class="filter-select" [(ngModel)]="selectedUrgency" (change)="onFilterChange()">
+        <option value="ALL">All Urgency Levels</option>
+        <option value="CRITICAL">Critical</option>
+        <option value="HIGH">High</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="LOW">Low</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="selectedStockType" (change)="onFilterChange()">
+        <option value="ALL">All Stock Types</option>
+        <option value="CHINA">China Stock</option>
+        <option value="THAI">Thai Stock</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="sortBy" (change)="onSortChange()">
+        <option value="daysUntilStockOut">Days Until Stockout</option>
+        <option value="currentStock">Current Stock</option>
+        <option value="estimatedOrderCost">Order Cost</option>
+        <option value="stockItemName">Name</option>
+      </select>
+
+      <button class="sort-btn" (click)="toggleSortOrder()">
+        <i class="bi-sort-{{sortOrder === 'asc' ? 'up' : 'down'}}"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading urgent items...</p>
+  </div>
+
+  <div class="items-section" *ngIf="!loading">
+    <div class="items-list">
+      <div class="item-card" *ngFor="let item of paginatedItems; let i = index"
+           [ngClass]="getUrgencyClass(item.urgencyLevel)">
+        <div class="item-number">{{getRowNumber(i)}}</div>
+
+        <div class="item-header">
+          <div class="item-title-section">
+            <h3 class="item-name">{{item.stockItemName}}</h3>
+            <span class="stock-type-badge">{{item.stockType}}</span>
+          </div>
+          <span class="urgency-badge" [ngClass]="getUrgencyClass(item.urgencyLevel)">
+            {{item.urgencyLevel}}
+          </span>
+        </div>
+
+        <div class="item-body">
+          <div class="stats-grid">
+            <div class="stat-box">
+              <div class="stat-label">Current Stock</div>
+              <div class="stat-value">{{item.currentStock}} <span class="stat-unit">units</span></div>
+            </div>
+
+            <div class="stat-box critical">
+              <div class="stat-label">Days Until Stockout</div>
+              <div class="stat-value">{{item.daysUntilStockOut}} <span class="stat-unit">days</span></div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Stockout Date</div>
+              <div class="stat-value small">{{formatDate(item.estimatedStockOutDate)}}</div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Daily Usage</div>
+              <div class="stat-value">{{item.averageDailyUsage}} <span class="stat-unit">units/day</span></div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Weekly Usage</div>
+              <div class="stat-value">{{item.averageWeeklyUsage}} <span class="stat-unit">units/week</span></div>
+            </div>
+
+            <div class="stat-box">
+              <div class="stat-label">Monthly Usage</div>
+              <div class="stat-value">{{item.averageMonthlyUsage}} <span class="stat-unit">units/month</span></div>
+            </div>
+          </div>
+
+          <div class="order-section">
+            <div class="order-info">
+              <div class="order-item">
+                <i class="bi-box-seam"></i>
+                <div>
+                  <div class="order-label">Recommended Order</div>
+                  <div class="order-value">{{item.recommendedOrderQuantity}} units</div>
+                </div>
+              </div>
+              <div class="order-item">
+                <i class="bi-cash-coin"></i>
+                <div>
+                  <div class="order-label">Estimated Cost</div>
+                  <div class="order-value cost">{{formatCurrency(item.estimatedOrderCost)}}</div>
+                </div>
+              </div>
+              <div class="order-item">
+                <i class="bi-shield-check"></i>
+                <div>
+                  <div class="order-label">Safety Stock</div>
+                  <div class="order-value">{{item.safetyStockDays}} days</div>
+                </div>
+              </div>
+              <div class="order-item">
+                <i class="bi-truck"></i>
+                <div>
+                  <div class="order-label">Lead Time</div>
+                  <div class="order-value">{{item.leadTimeDays}} days</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="recommendation-box" *ngIf="item.recommendations">
+            <i class="bi-lightbulb-fill"></i>
+            <div class="recommendation-text">{{item.recommendations}}</div>
+          </div>
+        </div>
+
+        <div class="item-footer">
+          <div class="analysis-info">
+            <i class="bi-graph-up"></i>
+            <span>Analysis based on {{item.analysisBasedOnDays}} days</span>
+          </div>
+          <div class="updated-info">
+            <i class="bi-clock"></i>
+            <span>Updated: {{formatDate(item.lastCalculatedDate)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="filteredItems.length === 0 && !loading">
+      <i class="bi-check-circle-fill"></i>
+      <h3>No Urgent Items</h3>
+      <p>All stock levels are healthy!</p>
+    </div>
+
+    <div class="pagination-section" *ngIf="filteredItems.length > 0">
+      <div class="pagination-info">
+        Showing {{(currentPage - 1) * itemsPerPage + 1}} to {{Math.min(currentPage * itemsPerPage, filteredItems.length)}} of {{filteredItems.length}} items
+      </div>
+      <div class="pagination-controls">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <i class="bi-chevron-left"></i>
+        </button>
+        <span class="page-indicator">Page {{currentPage}} of {{totalPages}}</span>
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          <i class="bi-chevron-right"></i>
+        </button>
+      </div>
+      <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onFilterChange()">
+        <option value="5">5 per page</option>
+        <option value="10">10 per page</option>
+        <option value="25">25 per page</option>
+        <option value="50">50 per page</option>
+      </select>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,245 @@
+<div class="cost-analysis-container">
+  <div class="cost-analysis-header">
+    <div class="header-left">
+      <div class="analysis-icon">
+        <i class="bi-graph-up-arrow"></i>
+      </div>
+      <div class="header-content">
+        <h1>การวิเคราะห์ต้นทุนสินค้า</h1>
+        <p class="subtitle">{{product?.productName || 'กำลังโหลดข้อมูล...'}}</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="back-btn" (click)="goBack()">
+        <i class="bi-arrow-left"></i>
+        กลับ
+      </button>
+      <button class="edit-btn" (click)="editProduct()">
+        <i class="bi-pencil"></i>
+        แก้ไขสินค้า
+      </button>
+      <button class="recalculate-btn" (click)="recalculateCost()" [disabled]="loading">
+        <i class="bi-calculator"></i>
+        คำนวณใหม่
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>กำลังวิเคราะห์ต้นทุน...</p>
+  </div>
+
+  <div class="analysis-content" *ngIf="!loading && product && costAnalysis">
+    <!-- Product Summary Card -->
+    <div class="summary-card">
+      <div class="card-header">
+        <h3>สรุปข้อมูลสินค้า</h3>
+        <span [class]="getStatusClass(product.status)">
+          {{getStatusText(product.status)}}
+        </span>
+      </div>
+
+      <div class="product-info">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">รหัสสินค้า:</span>
+            <span class="value">{{product.sku}}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">หมวดหมู่:</span>
+            <span class="value">{{product.category || '-'}}</span>
+          </div>
+          <div class="info-item" *ngIf="product.description">
+            <span class="label">คำอธิบาย:</span>
+            <span class="value">{{product.description}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Financial Summary -->
+    <div class="financial-summary">
+      <div class="summary-grid">
+        <div class="metric-card cost">
+          <div class="metric-icon">
+            <i class="bi-calculator"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{formatCurrency(costAnalysis.totalMaterialCost)}}</div>
+            <div class="metric-label">ต้นทุนรวม</div>
+          </div>
+        </div>
+
+        <div class="metric-card price">
+          <div class="metric-icon">
+            <i class="bi-tag"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value">{{formatCurrency(costAnalysis.sellingPrice)}}</div>
+            <div class="metric-label">ราคาขาย</div>
+          </div>
+        </div>
+
+        <div class="metric-card profit" [class.negative]="(costAnalysis.grossProfit || 0) < 0">
+          <div class="metric-icon">
+            <i class="bi-currency-dollar"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" [class]="getProfitClass(costAnalysis.grossProfit)">
+              {{formatCurrency(costAnalysis.grossProfit)}}
+            </div>
+            <div class="metric-label">กำไรขั้นต้น</div>
+          </div>
+        </div>
+
+        <div class="metric-card margin" [class.negative]="(costAnalysis.profitMarginPercentage || 0) < 0">
+          <div class="metric-icon">
+            <i class="bi-percent"></i>
+          </div>
+          <div class="metric-content">
+            <div class="metric-value" [class]="getMarginClass(costAnalysis.profitMarginPercentage)">
+              {{formatPercentage(costAnalysis.profitMarginPercentage)}}
+            </div>
+            <div class="metric-label">เปอร์เซ็นต์กำไร</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Breakdown -->
+    <div class="cost-breakdown-card" *ngIf="costAnalysis.ingredientBreakdown && costAnalysis.ingredientBreakdown.length > 0">
+      <div class="card-header">
+        <h3>รายละเอียดต้นทุนตามส่วนประกอบ</h3>
+      </div>
+
+      <div class="breakdown-table">
+        <div class="table-header">
+          <div class="col-ingredient">ส่วนประกอบ</div>
+          <div class="col-quantity">จำนวน</div>
+          <div class="col-unit-cost">ต้นทุนต่อหน่วย</div>
+          <div class="col-total-cost">ต้นทุนรวม</div>
+          <div class="col-percentage">เปอร์เซ็นต์</div>
+          <div class="col-source">แหล่งที่มา</div>
+        </div>
+
+        <div class="table-body">
+          <div class="table-row" *ngFor="let ingredient of costAnalysis.ingredientBreakdown">
+            <div class="col-ingredient">
+              <div class="ingredient-name">{{ingredient.ingredientName}}</div>
+            </div>
+            <div class="col-quantity">
+              {{ingredient.requiredQuantity}} {{ingredient.unit}}
+            </div>
+            <div class="col-unit-cost">
+              {{formatCurrency(ingredient.costPerUnit)}}
+            </div>
+            <div class="col-total-cost">
+              {{formatCurrency(ingredient.totalCost)}}
+            </div>
+            <div class="col-percentage">
+              <div class="percentage-bar">
+                <div class="percentage-fill" [style.width.%]="ingredient.costPercentage"></div>
+                <span class="percentage-text">{{formatPercentage(ingredient.costPercentage)}}</span>
+              </div>
+            </div>
+            <div class="col-source">
+              <small class="source-text">{{ingredient.stockSource}}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cost Distribution Chart -->
+    <div class="chart-card">
+      <div class="card-header">
+        <h3>แผนภูมิสัดส่วนต้นทุน</h3>
+      </div>
+
+      <div class="chart-container" *ngIf="costAnalysis.ingredientBreakdown && costAnalysis.ingredientBreakdown.length > 0">
+        <div class="chart-legend">
+          <div class="legend-item" *ngFor="let ingredient of costAnalysis.ingredientBreakdown; let i = index">
+            <div class="legend-color" [style.background-color]="'hsl(' + (i * 360 / costAnalysis.ingredientBreakdown.length) + ', 70%, 50%)'"></div>
+            <span class="legend-text">{{ingredient.ingredientName}} ({{formatPercentage(ingredient.costPercentage)}})</span>
+          </div>
+        </div>
+
+        <div class="chart-bars">
+          <div class="bar-item" *ngFor="let ingredient of costAnalysis.ingredientBreakdown; let i = index">
+            <div class="bar-label">{{ingredient.ingredientName}}</div>
+            <div class="bar-container">
+              <div class="bar-fill"
+                   [style.width.%]="ingredient.costPercentage"
+                   [style.background-color]="'hsl(' + (i * 360 / costAnalysis.ingredientBreakdown.length) + ', 70%, 50%)'">
+              </div>
+              <div class="bar-value">{{formatCurrency(ingredient.totalCost)}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profitability Analysis -->
+    <div class="profitability-card">
+      <div class="card-header">
+        <h3>การวิเคราะห์ความคุ้มค่า</h3>
+      </div>
+
+      <div class="profitability-content">
+        <div class="profit-metrics">
+          <div class="profit-item">
+            <div class="profit-label">อัตรากำไรขั้นต้น</div>
+            <div class="profit-value" [class]="getMarginClass(costAnalysis.profitMarginPercentage)">
+              {{formatPercentage(costAnalysis.profitMarginPercentage)}}
+            </div>
+          </div>
+
+          <div class="profit-item">
+            <div class="profit-label">กำไรต่อหน่วย</div>
+            <div class="profit-value" [class]="getProfitClass(costAnalysis.grossProfit)">
+              {{formatCurrency(costAnalysis.grossProfit)}}
+            </div>
+          </div>
+        </div>
+
+        <div class="recommendations" *ngIf="costAnalysis.profitMarginPercentage !== undefined">
+          <h4>คำแนะนำ</h4>
+          <div class="recommendation-list">
+            <div class="recommendation-item"
+                 [class.success]="costAnalysis.profitMarginPercentage > 30"
+                 [class.warning]="costAnalysis.profitMarginPercentage > 10 && costAnalysis.profitMarginPercentage <= 30"
+                 [class.danger]="costAnalysis.profitMarginPercentage <= 10">
+              <i class="bi-lightbulb" *ngIf="costAnalysis.profitMarginPercentage > 30"></i>
+              <i class="bi-exclamation-triangle" *ngIf="costAnalysis.profitMarginPercentage > 10 && costAnalysis.profitMarginPercentage <= 30"></i>
+              <i class="bi-exclamation-circle" *ngIf="costAnalysis.profitMarginPercentage <= 10"></i>
+
+              <div class="recommendation-text">
+                <div *ngIf="costAnalysis.profitMarginPercentage > 30">
+                  <strong>ความคุ้มค่าดีเยี่ยม:</strong> อัตรากำไรสูงกว่า 30% ธุรกิจมีผลกำไรที่ดี
+                </div>
+                <div *ngIf="costAnalysis.profitMarginPercentage > 10 && costAnalysis.profitMarginPercentage <= 30">
+                  <strong>ความคุ้มค่าปานกลาง:</strong> พิจารณาลดต้นทุนหรือเพิ่มราคาขายเพื่อเพิ่มกำไร
+                </div>
+                <div *ngIf="costAnalysis.profitMarginPercentage <= 10">
+                  <strong>ความคุ้มค่าต่ำ:</strong> ควรทบทวนต้นทุนและราคาขายอย่างจริงจัง
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="!loading && (!product || !costAnalysis)">
+    <i class="bi-exclamation-triangle"></i>
+    <h3>ไม่สามารถโหลดข้อมูลได้</h3>
+    <p>กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ</p>
+    <button class="retry-btn" (click)="loadCostAnalysis()">
+      <i class="bi-arrow-clockwise"></i>
+      ลองใหม่
+    </button>
+  </div>
+</div>

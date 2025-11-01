@@ -1,0 +1,146 @@
+<div class="thai-stock-container">
+  <div class="thai-stock-header">
+    <div class="thai-stock-header-top">
+      <div class="thai-stock-icon">
+        <i class="bi-house-fill"></i>
+      </div>
+      <div class="thai-stock-title">
+        <h1>Thai Stock Inventory</h1>
+        <p class="thai-stock-subtitle">Manage local products and inventory from Thailand</p>
+      </div>
+    </div>
+
+    <div class="thai-stock-controls">
+      <div class="thai-stock-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search by product name or shop URL..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalThaiStocks}}</div>
+          <div class="stats-label">Total Thai Items</div>
+        </div>
+      </div>
+
+      <div class="thai-stock-controls-right">
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedLot" (change)="onFilterChange()">
+            <option value="ALL">All Lots</option>
+            <option *ngFor="let lot of stockLots" [value]="lot.stockLotId">{{lot.lotName}}</option>
+          </select>
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
+        </div>
+        <button class="add-thai-stock-btn" (click)="openAddThaiStockModal()">
+          <i class="bi-plus"></i>
+          Add Thai Stock
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="thai-stock-table-container">
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading Thai stock data...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="thai-stock-table">
+        <thead>
+        <tr>
+          <th class="col-sn">S/N</th>
+          <th class="col-name">Product Name</th>
+          <th class="col-lot">Lot</th>
+          <th class="col-quantity">Qty</th>
+          <th class="col-price-total">Total Price (฿)</th>
+          <th class="col-shipping">Shipping (฿)</th>
+          <th class="col-price-unit">Price/Unit (฿)</th>
+          <th class="col-price-unit-shipping">Final Price/Unit (฿)</th>
+          <th class="col-status">Status</th>
+          <th class="col-action">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let stock of paginatedThaiStocks; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-name">
+            <div class="product-info">
+              <span class="product-name">{{stock.name}}</span>
+              <small class="shop-url" *ngIf="stock.shopURL">{{stock.shopURL}}</small>
+            </div>
+          </td>
+          <td class="col-lot">{{getLotName(stock)}}</td>
+          <td class="col-quantity">{{stock.quantity}}</td>
+          <td class="col-price-total">{{formatCurrency(stock.priceTotal)}}</td>
+          <td class="col-shipping">{{formatCurrency(stock.shippingCost)}}</td>
+          <td class="col-price-unit">{{formatCurrency(stock.pricePerUnit)}}</td>
+          <td class="col-price-unit-shipping">{{formatCurrency(stock.pricePerUnitWithShipping)}}</td>
+          <td class="col-status">
+            <span [class]="getStatusClass(stock.status)">{{stock.status || 'N/A'}}</span>
+          </td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, stock)">
+                Actions <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeThaiStock === stock">
+                <li>
+                  <button class="dropdown-item" (click)="editThaiStock(stock)">
+                    <i class="bi-pencil"></i> Edit
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="updateThaiStockStatus(stock, stock.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')">
+                    <i class="bi-toggle-on" *ngIf="stock.status === 'ACTIVE'"></i>
+                    <i class="bi-toggle-off" *ngIf="stock.status !== 'ACTIVE'"></i>
+                    {{stock.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}}
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item delete-item" (click)="deleteThaiStock(stock)">
+                    <i class="bi-trash"></i> Delete
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredThaiStocks.length === 0 && !loading">
+          <td colspan="10" class="empty-state">
+            <i class="bi-house-fill"></i>
+            <p>No Thai stock items found</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredThaiStocks.length > 0">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

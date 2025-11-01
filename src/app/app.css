@@ -1,0 +1,84 @@
+/* Container หลัก - ปรับให้รองรับทั้ง 2 โหมด */
+.app-container {
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* ⭐ โหมดปกติ (เมื่อ Login แล้ว) - แสดง Grid Layout */
+.app-container:not(.full-screen) {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr;
+  gap: 0;
+  padding: 1rem;
+  transition: grid-template-columns 0.3s ease-in-out;
+}
+
+.app-container:not(.full-screen).sidebar-collapsed {
+  grid-template-columns: 80px 1fr;
+}
+
+/* ⭐ โหมดเต็มหน้าจอ (เมื่อไม่ได้ Login) */
+.app-container.full-screen {
+  display: block;
+  padding: 0;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Sidebar - แสดงเฉพาะเมื่อไม่ใช่โหมดเต็มหน้าจอ */
+.app-container:not(.full-screen) .sidebar {
+  grid-row: 1 / -1;
+  grid-column: 1;
+}
+
+/* Main Content */
+.main-content {
+  grid-column: 2;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+}
+
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-container:not(.full-screen) {
+    grid-template-columns: 1fr;
+    padding: 0.5rem;
+  }
+
+  .app-container:not(.full-screen).sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .app-container:not(.full-screen) .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .app-container:not(.full-screen) .sidebar.show {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    grid-column: 1;
+  }
+}

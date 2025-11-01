@@ -1,0 +1,259 @@
+<!--<header class="header" [class.sidebar-collapsed]="sidebarCollapsed">-->
+<!--  &lt;!&ndash; Welcome Section &ndash;&gt;-->
+<!--  <div class="welcome-section">-->
+<!--    <div class="welcome-text">-->
+<!--      <h1>Welcome, {{currentUser.name}} <span class="wave-emoji">👋</span></h1>-->
+<!--      <p class="date-text">Today is {{currentDate}}</p>-->
+<!--    </div>-->
+<!--  </div>-->
+
+<!--  &lt;!&ndash; Header Actions &ndash;&gt;-->
+<!--  <div class="header-actions">-->
+<!--    &lt;!&ndash; Notifications &ndash;&gt;-->
+<!--    <div class="notification-wrapper">-->
+<!--      <button class="notification-btn"-->
+<!--              (click)="toggleNotifications()"-->
+<!--              [class.has-notifications]="hasUnreadNotifications">-->
+<!--        <i class="bi-bell"></i>-->
+<!--        <span class="notification-badge" *ngIf="notificationCount > 0">-->
+<!--          {{notificationCount > 99 ? '99+' : notificationCount}}-->
+<!--        </span>-->
+<!--      </button>-->
+
+<!--      &lt;!&ndash; Notifications Dropdown &ndash;&gt;-->
+<!--      <div class="notifications-dropdown"-->
+<!--           [class.show]="showNotifications"-->
+<!--           (click)="$event.stopPropagation()">-->
+<!--        <div class="dropdown-header">-->
+<!--          <h6>Notifications</h6>-->
+<!--          <button class="mark-all-read" (click)="markAllAsRead()">Mark all as read</button>-->
+<!--        </div>-->
+<!--        <div class="notifications-list">-->
+<!--          <div class="notification-item"-->
+<!--               *ngFor="let notification of notifications"-->
+<!--               [class.unread]="!notification.read">-->
+<!--            <div class="notification-icon">-->
+<!--              <i class="{{getNotificationIcon(notification.type)}}"></i>-->
+<!--            </div>-->
+<!--            <div class="notification-content">-->
+<!--              <p class="notification-title">{{notification.title}}</p>-->
+<!--              <p class="notification-message">{{notification.message}}</p>-->
+<!--              <span class="notification-time">{{getRelativeTime(notification.timestamp)}}</span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--          <div class="no-notifications" *ngIf="notifications.length === 0">-->
+<!--            <i class="bi-bell-slash"></i>-->
+<!--            <p>No notifications</p>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--        <div class="dropdown-footer">-->
+<!--          <button class="view-all-btn" (click)="viewAllNotifications()">View All</button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Profile Dropdown &ndash;&gt;-->
+<!--    <div class="profile-wrapper">-->
+<!--      <button class="profile-btn" (click)="toggleProfileMenu()">-->
+<!--        <div class="profile-avatar">-->
+<!--          <img [src]="currentUser.avatar"-->
+<!--               [alt]="currentUser.name"-->
+<!--               *ngIf="currentUser.avatar; else defaultAvatar">-->
+<!--          <ng-template #defaultAvatar>-->
+<!--            <i class="bi-person-circle"></i>-->
+<!--          </ng-template>-->
+<!--        </div>-->
+<!--        <div class="profile-info">-->
+<!--          <span class="profile-name">{{currentUser.name}}</span>-->
+<!--          <span class="profile-role">{{currentUser.role}}</span>-->
+<!--        </div>-->
+<!--        <i class="bi-chevron-down dropdown-arrow"-->
+<!--           [class.rotated]="showProfileMenu"></i>-->
+<!--      </button>-->
+
+<!--      &lt;!&ndash; Profile Dropdown Menu &ndash;&gt;-->
+<!--      <div class="profile-dropdown"-->
+<!--           [class.show]="showProfileMenu"-->
+<!--           (click)="$event.stopPropagation()">-->
+<!--        <div class="dropdown-header">-->
+<!--          <div class="profile-avatar large">-->
+<!--            <img [src]="currentUser.avatar"-->
+<!--                 [alt]="currentUser.name"-->
+<!--                 *ngIf="currentUser.avatar; else defaultAvatarLarge">-->
+<!--            <ng-template #defaultAvatarLarge>-->
+<!--              <i class="bi-person-circle"></i>-->
+<!--            </ng-template>-->
+<!--          </div>-->
+<!--          <div class="profile-details">-->
+<!--            <h6>{{currentUser.name}}</h6>-->
+<!--            <p>{{currentUser.email}}</p>-->
+<!--            <span class="profile-badge">{{currentUser.role}}</span>-->
+<!--          </div>-->
+<!--        </div>-->
+
+<!--        <div class="dropdown-divider"></div>-->
+
+<!--        <ul class="dropdown-menu">-->
+<!--          <li>-->
+<!--            <a (click)="navigateToProfile()" class="dropdown-item">-->
+<!--              <i class="bi-person"></i>-->
+<!--              <span>Profile</span>-->
+<!--            </a>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <a (click)="navigateToSettings()" class="dropdown-item">-->
+<!--              <i class="bi-gear"></i>-->
+<!--              <span>Settings</span>-->
+<!--            </a>-->
+<!--          </li>-->
+<!--          <li>-->
+<!--            <a (click)="navigateToHelp()" class="dropdown-item">-->
+<!--              <i class="bi-question-circle"></i>-->
+<!--              <span>Help & Support</span>-->
+<!--            </a>-->
+<!--          </li>-->
+<!--        </ul>-->
+
+<!--        <div class="dropdown-divider"></div>-->
+
+<!--        <div class="dropdown-footer">-->
+<!--          <button class="logout-btn" (click)="logout()">-->
+<!--            <i class="bi-box-arrow-right"></i>-->
+<!--            <span>Logout</span>-->
+<!--          </button>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </div>-->
+<!--  </div>-->
+<!--</header>-->
+
+<!--&lt;!&ndash; Click outside to close dropdowns &ndash;&gt;-->
+<!--<div class="backdrop"-->
+<!--     *ngIf="showNotifications || showProfileMenu"-->
+<!--     (click)="closeAllDropdowns()">-->
+<!--</div>-->
+<header class="header" [class.sidebar-collapsed]="sidebarCollapsed">
+  <!-- Welcome Section -->
+  <div class="welcome-section">
+    <div class="welcome-text">
+      <h1>Welcome, {{userName}} <span class="wave-emoji">👋</span></h1>
+      <p class="date-text">Today is {{currentDate}}</p>
+    </div>
+  </div>
+
+  <!-- Header Actions -->
+  <div class="header-actions">
+    <!-- Notifications -->
+    <div class="notification-wrapper">
+      <button class="notification-btn"
+              (click)="toggleNotifications()"
+              [class.has-notifications]="hasUnreadNotifications">
+        <i class="bi-bell"></i>
+        <span class="notification-badge" *ngIf="notificationCount > 0">
+          {{notificationCount > 99 ? '99+' : notificationCount}}
+        </span>
+      </button>
+
+      <!-- Notifications Dropdown -->
+      <div class="notifications-dropdown"
+           [class.show]="showNotifications"
+           (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <h6>Notifications</h6>
+          <button class="mark-all-read" (click)="markAllAsRead()">Mark all as read</button>
+        </div>
+        <div class="notifications-list">
+          <div class="notification-item"
+               *ngFor="let notification of notifications"
+               [class.unread]="!notification.read"
+               (click)="markNotificationAsRead(notification.id)">
+            <div class="notification-icon">
+              <i [class]="getNotificationIcon(notification.type)"></i>
+            </div>
+            <div class="notification-content">
+              <p class="notification-title">{{notification.title}}</p>
+              <p class="notification-message">{{notification.message}}</p>
+              <span class="notification-time">{{getRelativeTime(notification.timestamp)}}</span>
+            </div>
+          </div>
+          <div class="no-notifications" *ngIf="notifications.length === 0">
+            <i class="bi-bell-slash"></i>
+            <p>No notifications</p>
+          </div>
+        </div>
+        <div class="dropdown-footer">
+          <button class="view-all-btn" (click)="viewAllNotifications()">View All</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Dropdown -->
+    <div class="profile-wrapper">
+      <button class="profile-btn" (click)="toggleProfileMenu()">
+        <div class="profile-avatar">
+          <i class="bi-person-circle"></i>
+        </div>
+        <div class="profile-info">
+          <span class="profile-name">{{userName}}</span>
+          <span class="profile-role">{{userRole}}</span>
+        </div>
+        <i class="bi-chevron-down dropdown-arrow"
+           [class.rotated]="showProfileMenu"></i>
+      </button>
+
+      <!-- Profile Dropdown Menu -->
+      <div class="profile-dropdown"
+           [class.show]="showProfileMenu"
+           (click)="$event.stopPropagation()">
+        <div class="dropdown-header">
+          <div class="profile-avatar large">
+            <i class="bi-person-circle"></i>
+          </div>
+          <div class="profile-details">
+            <h6>{{userName}}</h6>
+            <p *ngIf="userEmail">{{userEmail}}</p>
+            <span class="profile-badge">{{userRole}}</span>
+          </div>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <ul class="dropdown-menu">
+          <li>
+            <a (click)="navigateToProfile()" class="dropdown-item">
+              <i class="bi-person"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li>
+            <a (click)="navigateToSettings()" class="dropdown-item">
+              <i class="bi-gear"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+          <li>
+            <a (click)="navigateToHelp()" class="dropdown-item">
+              <i class="bi-question-circle"></i>
+              <span>Help & Support</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="dropdown-divider"></div>
+
+        <div class="dropdown-footer">
+          <button class="logout-btn" (click)="logout()">
+            <i class="bi-box-arrow-right"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Backdrop -->
+<div class="backdrop"
+     *ngIf="showNotifications || showProfileMenu"
+     (click)="closeAllDropdowns()">
+</div>

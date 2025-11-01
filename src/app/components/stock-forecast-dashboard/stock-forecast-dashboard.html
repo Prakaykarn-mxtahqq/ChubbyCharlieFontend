@@ -1,0 +1,227 @@
+<div class="forecast-dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="dashboard-icon">
+        <i class="bi-graph-up-arrow"></i>
+      </div>
+      <div class="dashboard-title">
+        <h1>Stock Forecast & Reorder Dashboard</h1>
+        <p class="dashboard-subtitle">Predictive analytics and automatic reorder recommendations</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="action-btn secondary" (click)="loadDashboard()" [disabled]="loading">
+        <i class="bi-arrow-clockwise"></i>
+        Refresh
+      </button>
+      <button class="action-btn primary" (click)="calculateForecasts()" [disabled]="calculating">
+        <i class="bi-calculator"></i>
+        {{calculating ? 'Calculating...' : 'Calculate Forecasts'}}
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading forecast data...</p>
+  </div>
+
+  <div class="dashboard-content" *ngIf="!loading && summary">
+    <!-- Summary Statistics -->
+    <div class="summary-section">
+      <h2 class="section-title">Inventory Forecast Overview</h2>
+      <div class="summary-grid">
+        <div class="summary-card total">
+          <div class="card-icon">
+            <i class="bi-boxes"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{summary.totalItems}}</div>
+            <div class="card-label">Total Items Tracked</div>
+          </div>
+        </div>
+
+        <div class="summary-card critical">
+          <div class="card-icon">
+            <i class="bi-exclamation-triangle-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{summary.criticalItems}}</div>
+            <div class="card-label">Critical Items</div>
+            <div class="card-sublabel">{{formatCurrency(summary.criticalItemsCost)}}</div>
+          </div>
+        </div>
+
+        <div class="summary-card high">
+          <div class="card-icon">
+            <i class="bi-exclamation-circle-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{summary.highUrgencyItems}}</div>
+            <div class="card-label">High Urgency</div>
+            <div class="card-sublabel">{{formatCurrency(summary.highUrgencyItemsCost)}}</div>
+          </div>
+        </div>
+
+        <div class="summary-card medium">
+          <div class="card-icon">
+            <i class="bi-dash-circle-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{summary.mediumUrgencyItems}}</div>
+            <div class="card-label">Medium Urgency</div>
+          </div>
+        </div>
+
+        <div class="summary-card low">
+          <div class="card-icon">
+            <i class="bi-check-circle-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{summary.lowUrgencyItems}}</div>
+            <div class="card-label">Low Urgency</div>
+          </div>
+        </div>
+
+        <div class="summary-card cost">
+          <div class="card-icon">
+            <i class="bi-cash-coin"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{formatCurrency(summary.totalEstimatedCost)}}</div>
+            <div class="card-label">Total Estimated Cost</div>
+            <div class="card-sublabel">For urgent items</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="action-buttons">
+        <button class="action-btn-large urgent" (click)="navigateToUrgentItems()">
+          <i class="bi-exclamation-triangle-fill"></i>
+          <span class="btn-label">View Urgent Items</span>
+          <span class="btn-count">{{summary.criticalItems + summary.highUrgencyItems}}</span>
+        </button>
+        <button class="action-btn-large recommendations" (click)="navigateToRecommendations()">
+          <i class="bi-cart-check-fill"></i>
+          <span class="btn-label">Order Recommendations</span>
+          <span class="btn-badge">New</span>
+        </button>
+        <button class="action-btn-large analysis" (click)="navigateToAnalysis()">
+          <i class="bi-graph-up"></i>
+          <span class="btn-label">Usage Analysis</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Urgent Items List -->
+    <div class="urgent-items-section" *ngIf="urgentItems.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">🚨 Urgent Stock Items</h2>
+        <button class="view-all-btn" (click)="navigateToUrgentItems()">
+          View All <i class="bi-arrow-right"></i>
+        </button>
+      </div>
+
+      <div class="urgent-items-list">
+        <div class="urgent-item-card" *ngFor="let item of urgentItems.slice(0, 5)"
+             [ngClass]="getUrgencyClass(item.urgencyLevel)">
+          <div class="item-header">
+            <div class="item-info">
+              <h3 class="item-name">{{item.stockItemName}}</h3>
+              <span class="item-type">{{item.stockType}}</span>
+            </div>
+            <span class="urgency-badge" [ngClass]="getUrgencyClass(item.urgencyLevel)">
+              {{item.urgencyLevel}}
+            </span>
+          </div>
+
+          <div class="item-stats">
+            <div class="stat-item">
+              <span class="stat-label">Current Stock:</span>
+              <span class="stat-value">{{item.currentStock}} units</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Days Until Stockout:</span>
+              <span class="stat-value critical">{{item.daysUntilStockOut}} days</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Daily Usage:</span>
+              <span class="stat-value">{{item.averageDailyUsage}} units/day</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Recommended Order:</span>
+              <span class="stat-value">{{item.recommendedOrderQuantity}} units</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-label">Estimated Cost:</span>
+              <span class="stat-value cost">{{formatCurrency(item.estimatedOrderCost)}}</span>
+            </div>
+          </div>
+
+          <div class="item-recommendation" *ngIf="item.recommendations">
+            <i class="bi-lightbulb-fill"></i>
+            <span>{{item.recommendations}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Running Out Soon -->
+    <div class="running-out-section" *ngIf="soonestToRunOut.length > 0">
+      <div class="section-header">
+        <h2 class="section-title">📅 Stock Running Out Soon</h2>
+      </div>
+
+      <div class="running-out-grid">
+        <div class="running-out-card" *ngFor="let item of soonestToRunOut.slice(0, 6)">
+          <div class="card-header">
+            <h4>{{item.stockItemName}}</h4>
+            <span class="stock-type-badge">{{item.stockType}}</span>
+          </div>
+          <div class="card-body">
+            <div class="progress-container">
+              <div class="progress-label">
+                <span>{{item.daysUntilStockOut}} days remaining</span>
+                <span>{{item.currentStock}} units</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill"
+                     [style.width.%]="getProgressPercentage(item.daysUntilStockOut, 60)"
+                     [ngClass]="{
+                       'critical': item.daysUntilStockOut <= 7,
+                       'high': item.daysUntilStockOut > 7 && item.daysUntilStockOut <= 14,
+                       'medium': item.daysUntilStockOut > 14 && item.daysUntilStockOut <= 30
+                     }">
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <span class="usage-info">~{{item.averageDailyUsage}} units/day</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Last Updated Info -->
+    <div class="last-updated">
+      <i class="bi-clock"></i>
+      Last updated: {{formatDate(summary.lastUpdated)}}
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading && !summary">
+    <i class="bi-graph-up-arrow"></i>
+    <h3>No Forecast Data Available</h3>
+    <p>Calculate forecasts to see predictive analytics and recommendations</p>
+    <button class="calculate-btn" (click)="calculateForecasts()">
+      <i class="bi-calculator"></i>
+      Calculate Now
+    </button>
+  </div>
+</div>

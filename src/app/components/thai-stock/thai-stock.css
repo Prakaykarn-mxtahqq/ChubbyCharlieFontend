@@ -1,0 +1,556 @@
+.china-stock-container,
+.thai-stock-container {
+  margin: 1rem;
+  padding: 1.5rem;
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  min-height: calc(100vh - 2rem);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  box-sizing: border-box;
+}
+
+/* Header Section */
+.china-stock-header,
+.thai-stock-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.china-stock-header-top,
+.thai-stock-header-top {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.china-stock-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #fef3c7;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d97706;
+  font-size: 1.25rem;
+}
+
+.thai-stock-icon {
+  width: 40px;
+  height: 40px;
+  background-color: #dcfce7;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #16a34a;
+  font-size: 1.25rem;
+}
+
+.china-stock-title h1,
+.thai-stock-title h1 {
+  color: #1f2937;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.china-stock-subtitle,
+.thai-stock-subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Controls Section */
+.china-stock-controls,
+.thai-stock-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.china-stock-controls-left,
+.china-stock-controls-right,
+.thai-stock-controls-left,
+.thai-stock-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+/* Search Box */
+.search-container {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+.thai-stock-container .search-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1rem;
+}
+
+/* Stats Card */
+.stats-card {
+  background-color: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+  min-width: 120px;
+}
+
+.stats-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stats-label {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+/* Filter Section */
+.filter-select {
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  background-color: #ffffff;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.1);
+}
+
+.thai-stock-container .filter-select:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+/* Add Buttons */
+.add-china-stock-btn {
+  background-color: #d97706;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.add-china-stock-btn:hover {
+  background-color: #b45309;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+.add-thai-stock-btn {
+  background-color: #16a34a;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.add-thai-stock-btn:hover {
+  background-color: #15803d;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+}
+
+/* Table Container */
+.china-stock-table-container,
+.thai-stock-table-container {
+  margin-top: 1rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Table Styles */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.china-stock-table,
+.thai-stock-table {
+  width: 100%;
+  min-width: 1200px;
+  border-collapse: collapse;
+}
+
+.china-stock-table th,
+.china-stock-table td,
+.thai-stock-table th,
+.thai-stock-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+.china-stock-table th,
+.thai-stock-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #374151;
+}
+
+.china-stock-table tbody tr:hover,
+.thai-stock-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+/* Product Info Styles */
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.shop-url {
+  color: #6b7280;
+  font-size: 0.8rem;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Column Widths */
+.col-sn { width: 4%; text-align: center; }
+.col-name { width: 20%; }
+.col-lot { width: 12%; }
+.col-quantity { width: 8%; text-align: center; }
+.col-unit-price { width: 10%; text-align: right; }
+.col-total-yuan { width: 10%; text-align: right; }
+.col-exchange { width: 8%; text-align: center; }
+.col-total-bath { width: 10%; text-align: right; }
+.col-final-price { width: 12%; text-align: right; }
+.col-price-total { width: 12%; text-align: right; }
+.col-shipping { width: 10%; text-align: right; }
+.col-price-unit { width: 12%; text-align: right; }
+.col-price-unit-shipping { width: 12%; text-align: right; }
+.col-status { width: 8%; text-align: center; }
+.col-action { width: 10%; text-align: center; }
+
+/* Badge Styles */
+.badge {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.badge-green { background-color: #d1fae5; color: #065f46; }
+.badge-red { background-color: #fee2e2; color: #dc2626; }
+.badge-yellow { background-color: #fef3c7; color: #d97706; }
+.badge-gray { background-color: #f3f4f6; color: #374151; }
+
+/* Action Dropdown */
+.action-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.action-btn {
+  background: #6b7280;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 0.4rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #ffffff;
+  transition: all 0.2s ease;
+}
+
+.china-stock-container .action-btn {
+  background: #d97706;
+}
+
+.china-stock-container .action-btn:hover {
+  background-color: #b45309;
+}
+
+.thai-stock-container .action-btn {
+  background: #16a34a;
+}
+
+.thai-stock-container .action-btn:hover {
+  background-color: #15803d;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.4rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  list-style: none;
+  padding: 0.25rem 0;
+  margin: 0.25rem 0 0;
+  display: none;
+  z-index: 1000;
+  min-width: 160px;
+}
+
+.dropdown-menu.show {
+  display: block;
+}
+
+.dropdown-item {
+  padding: 0.6rem 1rem;
+  font-size: 0.8rem;
+  color: #374151;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+  color: #d97706;
+}
+
+.thai-stock-container .dropdown-item:hover {
+  color: #16a34a;
+}
+
+.dropdown-item.delete-item:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Pagination */
+.pagination-container {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination {
+  display: flex;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.page-item {
+  display: flex;
+}
+
+.page-link {
+  padding: 0.5rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.china-stock-container .page-link:hover {
+  background-color: #d97706;
+  color: white;
+  border-color: #d97706;
+}
+
+.thai-stock-container .page-link:hover {
+  background-color: #16a34a;
+  color: white;
+  border-color: #16a34a;
+}
+
+/* Loading and Empty States */
+.loading-container {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 4px solid #e5e7eb;
+  border-top: 4px solid #d97706;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+.thai-stock-container .loading-spinner {
+  border-top: 4px solid #16a34a;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.empty-state {
+  padding: 3rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #d1d5db;
+}
+
+/* Form Styles for Add/Edit Components */
+.china-stock-form,
+.thai-stock-form {
+  background: white;
+  border-radius: 12px;
+  padding: 40px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+}
+
+.china-stock-preview,
+.thai-stock-preview {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.china-stock-preview h3 {
+  color: #212529;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #d97706;
+}
+
+.thai-stock-preview h3 {
+  color: #212529;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #16a34a;
+}
+
+/* Status colors for preview */
+.preview-status.status-active {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.preview-status.status-inactive {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+.preview-status.status-out_of_stock {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .china-stock-controls,
+  .thai-stock-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-container {
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .china-stock-container,
+  .thai-stock-container {
+    margin: 0.5rem;
+    padding: 1rem;
+  }
+
+  .china-stock-table,
+  .thai-stock-table {
+    min-width: 1000px;
+  }
+
+  .china-stock-controls-left,
+  .china-stock-controls-right,
+  .thai-stock-controls-left,
+  .thai-stock-controls-right {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

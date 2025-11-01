@@ -1,0 +1,122 @@
+<div class="customer-container "  (click)="onDocumentClick()">
+  <div class="customer-header">
+    <div class="customer-header-top">
+      <div class="customer-icon">
+        <i class="bi-people"></i>
+      </div>
+      <div class="customer-title">
+        <h1>All Customers</h1>
+        <p class="customer-subtitle">View, search for and add new customers</p>
+      </div>
+    </div>
+
+    <div class="customer-controls">
+      <div class="customer-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Enter search word or phone number"
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalCustomers}}</div>
+          <div class="stats-label">Total number of customers</div>
+        </div>
+      </div>
+
+      <div class="customer-controls-right">
+        <button class="add-customer-btn" (click)="openAddCustomerModal()">
+          <i class="bi-plus"></i>
+          Add New Customer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="customer-table-container">
+    <div class="customer-table-header">
+      <h3 class="table-title">All Customers</h3>
+      <div class="table-controls">
+        <div class="per-page-selector">
+          <span>Showing</span>
+          <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span>per page</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading customer data...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="customer-table">
+        <thead>
+        <tr>
+          <th class="col-sn">S/N</th>
+          <th class="col-name">Name</th>
+          <th class="col-address">Address</th>
+          <th class="col-phone">Phone</th>
+          <th class="col-action">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let customer of paginatedCustomers; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-name">{{customer.customerName}}</td>
+          <td class="col-address">{{customer.customerAddress}}</td>
+          <td class="col-phone">{{customer.customerPhone}}</td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, customer)">
+                Actions <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeCustomer === customer">
+                <li>
+                  <button class="dropdown-item" (click)="editCustomer(customer)">Edit</button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="deleteCustomer(customer)">Delete</button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredCustomers.length === 0 && !loading">
+          <td colspan="5" class="empty-state">
+            <i class="bi-people"></i>
+            <p>No customers found</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredCustomers.length > 0">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

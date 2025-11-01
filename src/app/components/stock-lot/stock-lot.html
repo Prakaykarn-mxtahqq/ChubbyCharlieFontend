@@ -1,0 +1,161 @@
+<div class="stock-lot-container">
+  <div class="stock-lot-header">
+    <div class="stock-lot-header-top">
+      <div class="stock-lot-icon">
+        <i class="bi-shop-window"></i>
+      </div>
+      <div class="stock-lot-title">
+        <h1>Stock Lots</h1>
+        <p class="stock-lot-subtitle">Manage your stock lot inventory and shipments</p>
+      </div>
+    </div>
+
+    <div class="stock-lot-controls">
+      <div class="stock-lot-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search by lot name..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalStockLots}}</div>
+          <div class="stats-label">Total Stock Lots</div>
+        </div>
+      </div>
+
+      <div class="stock-lot-controls-right">
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option value="ALL">All Statuses</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_TRANSIT">In Transit</option>
+            <option value="ARRIVED">Arrived</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
+        <button class="add-stock-lot-btn" (click)="openAddStockLotModal()">
+          <i class="bi-plus"></i>
+          Add New Stock Lot
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stock-lot-table-container">
+    <div class="stock-lot-table-header">
+      <h3 class="table-title">All Stock Lots</h3>
+      <div class="table-controls">
+        <div class="per-page-selector">
+          <span>Showing</span>
+          <select class="per-page-select" [(ngModel)]="itemsPerPage" (change)="onItemsPerPageChange()">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+          </select>
+          <span>per page</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading stock lot data...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="stock-lot-table">
+        <thead>
+        <tr>
+          <th class="col-sn">S/N</th>
+          <th class="col-lot-name">Lot Name</th>
+          <th class="col-import-date">Import Date</th>
+          <th class="col-arrival-date">Arrival Date</th>
+          <th class="col-status">Status</th>
+          <th class="col-action">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let stockLot of paginatedStockLots; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-lot-name">{{stockLot.lotName}}</td>
+          <td class="col-import-date">{{formatDate(stockLot.importDate)}}</td>
+          <td class="col-arrival-date">{{formatDate(stockLot.arrivalDate)}}</td>
+
+          <td class="col-status">
+            <span [class]="getStatusClass(stockLot.status)">{{stockLot.status || 'N/A'}}</span>
+          </td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, stockLot)">
+                Actions <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeStockLot === stockLot">
+                <li>
+                  <button class="dropdown-item" (click)="viewStockLotDetails(stockLot)">
+                    <i class="bi-eye"></i> View Details
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="editStockLot(stockLot)">
+                    <i class="bi-pencil"></i> Edit
+                  </button>
+                </li>
+                <li *ngIf="stockLot.status === 'PENDING'">
+                  <button class="dropdown-item" (click)="updateStockLotStatus(stockLot, 'IN_TRANSIT')">
+                    <i class="bi-truck"></i> Mark In Transit
+                  </button>
+                </li>
+                <li *ngIf="stockLot.status === 'ARRIVED'">
+                  <button class="dropdown-item" (click)="updateStockLotStatus(stockLot, 'ARRIVED')">
+                    <i class="bi-check-circle"></i> Mark Arrived
+                  </button>
+                </li>
+                <li *ngIf="stockLot.status === 'COMPLETED'">
+                  <button class="dropdown-item" (click)="updateStockLotStatus(stockLot, 'COMPLETED')">
+                    <i class="bi-check-all"></i> Mark Completed
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item delete-item" (click)="deleteStockLot(stockLot)">
+                    <i class="bi-trash"></i> Delete
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredStockLots.length === 0 && !loading">
+          <td colspan="7" class="empty-state">
+            <i class="bi-shop-window"></i>
+            <p>No stock lots found</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredStockLots.length > 0">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

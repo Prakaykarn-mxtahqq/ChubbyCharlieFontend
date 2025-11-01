@@ -1,0 +1,148 @@
+<div class="china-stock-container">
+  <div class="china-stock-header">
+    <div class="china-stock-header-top">
+      <div class="china-stock-icon">
+        <i class="bi-geo-alt"></i>
+      </div>
+      <div class="china-stock-title">
+        <h1>China Stock Inventory</h1>
+        <p class="china-stock-subtitle">Manage products imported from China with exchange rates and shipping costs</p>
+      </div>
+    </div>
+
+    <div class="china-stock-controls">
+      <div class="china-stock-controls-left">
+        <div class="search-container">
+          <i class="bi-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Search by product name or shop URL..."
+            [(ngModel)]="searchTerm"
+            (input)="onSearch()"
+          />
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">{{totalChinaStocks}}</div>
+          <div class="stats-label">Total China Items</div>
+        </div>
+      </div>
+
+      <div class="china-stock-controls-right">
+        <div class="filter-section">
+          <select class="filter-select" [(ngModel)]="selectedLot" (change)="onFilterChange()">
+            <option value="ALL">All Lots</option>
+            <option *ngFor="let lot of stockLots" [value]="lot.stockLotId">{{lot.lotName}}</option>
+          </select>
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onFilterChange()">
+            <option value="ALL">All Statuses</option>
+            <option value="ACTIVE">Active</option>
+            <option value="INACTIVE">Inactive</option>
+            <option value="OUT_OF_STOCK">Out of Stock</option>
+          </select>
+        </div>
+        <button class="add-china-stock-btn" (click)="openAddChinaStockModal()">
+          <i class="bi-plus"></i>
+          Add China Stock
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="china-stock-table-container">
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading China stock data...</p>
+    </div>
+
+    <div class="table-wrapper" *ngIf="!loading">
+      <table class="china-stock-table">
+        <thead>
+        <tr>
+          <th class="col-sn">S/N</th>
+          <th class="col-name">Product Name</th>
+          <th class="col-lot">Lot</th>
+          <th class="col-quantity">Qty</th>
+          <th class="col-unit-price">Unit Price (¥)</th>
+          <th class="col-total-yuan">Total (¥)</th>
+          <th class="col-exchange">Rate</th>
+          <th class="col-total-bath">Total (฿)</th>
+          <th class="col-final-price">Final Price/Unit (฿)</th>
+          <th class="col-status">Status</th>
+          <th class="col-action">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let stock of paginatedChinaStocks; let i = index">
+          <td class="col-sn">{{getRowNumber(i)}}</td>
+          <td class="col-name">
+            <div class="product-info">
+              <span class="product-name">{{stock.name}}</span>
+              <small class="shop-url" *ngIf="stock.shopURL">{{stock.shopURL}}</small>
+            </div>
+          </td>
+          <td class="col-lot">{{getLotName(stock)}}</td>
+          <td class="col-quantity">{{stock.quantity}}</td>
+          <td class="col-unit-price">{{formatCurrency(stock.unitPriceYuan, 'CNY')}}</td>
+          <td class="col-total-yuan">{{formatCurrency(stock.totalYuan, 'CNY')}}</td>
+          <td class="col-exchange">{{stock.exchangeRate}}</td>
+          <td class="col-total-bath">{{formatCurrency(stock.totalBath)}}</td>
+          <td class="col-final-price">{{formatCurrency(stock.finalPricePerPair)}}</td>
+          <td class="col-status">
+            <span [class]="getStatusClass(stock.status)">{{stock.status || 'N/A'}}</span>
+          </td>
+          <td class="col-action">
+            <div class="action-dropdown">
+              <button class="action-btn" (click)="toggleDropdown($event, stock)">
+                Actions <i class="bi bi-chevron-down"></i>
+              </button>
+              <ul class="dropdown-menu" [class.show]="isDropdownOpen && activeChinaStock === stock">
+                <li>
+                  <button class="dropdown-item" (click)="editChinaStock(stock)">
+                    <i class="bi-pencil"></i> Edit
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item" (click)="updateChinaStockStatus(stock, stock.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE')">
+                    <i class="bi-toggle-on" *ngIf="stock.status === 'ACTIVE'"></i>
+                    <i class="bi-toggle-off" *ngIf="stock.status !== 'ACTIVE'"></i>
+                    {{stock.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}}
+                  </button>
+                </li>
+                <li>
+                  <button class="dropdown-item delete-item" (click)="deleteChinaStock(stock)">
+                    <i class="bi-trash"></i> Delete
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="filteredChinaStocks.length === 0 && !loading">
+          <td colspan="11" class="empty-state">
+            <i class="bi-geo-alt"></i>
+            <p>No China stock items found</p>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination-container" *ngIf="!loading && filteredChinaStocks.length > 0">
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="goToPage(currentPage - 1)" [style.cursor]="currentPage === 1 ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-left"></i>
+            </a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="goToPage(currentPage + 1)" [style.cursor]="currentPage === totalPages ? 'not-allowed' : 'pointer'">
+              <i class="bi-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</div>

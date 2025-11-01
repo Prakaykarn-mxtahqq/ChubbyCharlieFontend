@@ -1,0 +1,149 @@
+<div class="stock-dashboard-container">
+  <div class="dashboard-header">
+    <div class="header-content">
+      <div class="dashboard-icon">
+        <i class="bi-box-seam"></i>
+      </div>
+      <div class="dashboard-title">
+        <h1>Stock & Inventory Dashboard</h1>
+        <p class="dashboard-subtitle">Overview of your stock lots and inventory management</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Loading dashboard data...</p>
+  </div>
+
+  <div class="dashboard-content" *ngIf="!loading">
+    <!-- Summary Statistics -->
+    <div class="summary-section">
+      <h2 class="section-title">Inventory Overview</h2>
+      <div class="summary-grid">
+        <div class="summary-card total">
+          <div class="card-icon">
+            <i class="bi-boxes"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{systemSummary?.totalLots || 0}}</div>
+            <div class="card-label">Total Stock Lots</div>
+          </div>
+        </div>
+
+        <div class="summary-card china">
+          <div class="card-icon">
+            <i class="bi-geo-alt"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{systemSummary?.totalChinaItems || 0}}</div>
+            <div class="card-label">China Stock Items</div>
+            <div class="card-percentage">{{getChinaPercentage()}}% of total</div>
+          </div>
+        </div>
+
+        <div class="summary-card thai">
+          <div class="card-icon">
+            <i class="bi-house-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{systemSummary?.totalThaiItems || 0}}</div>
+            <div class="card-label">Thai Stock Items</div>
+            <div class="card-percentage">{{getThaiPercentage()}}% of total</div>
+          </div>
+        </div>
+
+        <div class="summary-card active">
+          <div class="card-icon">
+            <i class="bi-check-circle"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{systemSummary?.activeItems || 0}}</div>
+            <div class="card-label">Active Items</div>
+            <div class="card-percentage">{{getActivePercentage()}}% active</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="action-buttons">
+        <button class="action-btn primary" (click)="navigateToStockLots()">
+          <i class="bi-shop-window"></i>
+          <span>Manage Stock Lots</span>
+        </button>
+        <button class="action-btn china" (click)="navigateToChinaStocks()">
+          <i class="bi-geo-alt"></i>
+          <span>China Inventory</span>
+        </button>
+        <button class="action-btn thai" (click)="navigateToThaiStocks()">
+          <i class="bi-house-fill"></i>
+          <span>Thai Inventory</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Recent Stock Lots -->
+    <div class="recent-lots-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Stock Lots</h2>
+        <button class="view-all-btn" (click)="navigateToStockLots()">
+          View All <i class="bi-arrow-right"></i>
+        </button>
+      </div>
+
+      <div class="lots-grid" *ngIf="recentStockLots.length > 0">
+        <div class="lot-card" *ngFor="let lot of recentStockLots" (click)="navigateToStockLot(lot.stockLotId!)">
+          <div class="lot-header">
+            <h3 class="lot-name">{{lot.lotName}}</h3>
+            <span class="lot-status" [ngClass]="getStatusClass(lot.status)">
+              {{lot.status}}
+            </span>
+          </div>
+
+          <div class="lot-details" *ngIf="getLotSummary(lot.stockLotId!)">
+            <div class="lot-info">
+              <div class="info-item">
+                <span class="info-label">Import Date:</span>
+                <span class="info-value">{{formatDate(lot.importDate)}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Total Items:</span>
+                <span class="info-value">{{getLotSummary(lot.stockLotId!)?.totalItemCount || 0}}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Total Value:</span>
+                <span class="info-value">{{formatCurrency(getLotSummary(lot.stockLotId!)?.grandTotalValue)}}</span>
+              </div>
+            </div>
+
+            <div class="lot-breakdown">
+              <div class="breakdown-item china">
+                <span class="breakdown-label">China Items:</span>
+                <span class="breakdown-value">{{getLotSummary(lot.stockLotId!)?.chinaItemCount || 0}}</span>
+              </div>
+              <div class="breakdown-item thai">
+                <span class="breakdown-label">Thai Items:</span>
+                <span class="breakdown-value">{{getLotSummary(lot.stockLotId!)?.thaiItemCount || 0}}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lot-actions">
+            <i class="bi-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="recentStockLots.length === 0">
+        <i class="bi-box-seam"></i>
+        <p>No stock lots found</p>
+        <button class="create-lot-btn" (click)="navigateToStockLots()">
+          Create Your First Stock Lot
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

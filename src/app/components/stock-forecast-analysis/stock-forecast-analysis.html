@@ -1,0 +1,356 @@
+<div class="analysis-container">
+  <div class="page-header">
+    <div class="header-content">
+      <button class="back-btn" (click)="goBack()">
+        <i class="bi-arrow-left"></i>
+        Back
+      </button>
+      <div class="header-info">
+        <div class="header-icon">
+          <i class="bi-graph-up"></i>
+        </div>
+        <div class="header-text">
+          <h1>Stock Usage Analysis</h1>
+          <p class="header-subtitle">Detailed analysis of stock consumption patterns and trends</p>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <select class="top-items-select" [(ngModel)]="topItemsCount" (change)="changeTopItems()">
+        <option value="10">Top 10</option>
+        <option value="20">Top 20</option>
+        <option value="30">Top 30</option>
+        <option value="50">Top 50</option>
+      </select>
+      <button class="action-btn secondary" (click)="refreshAnalysis()" [disabled]="loading">
+        <i class="bi-arrow-clockwise"></i>
+        Refresh
+      </button>
+      <button class="action-btn secondary" (click)="exportAnalysis()" [disabled]="loading || !analysisData">
+        <i class="bi-download"></i>
+        Export
+      </button>
+    </div>
+  </div>
+
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>Analyzing stock usage patterns...</p>
+  </div>
+
+  <div class="analysis-content" *ngIf="!loading && analysisData">
+    <!-- Overall Summary -->
+    <div class="summary-section">
+      <h2 class="section-title">Overall Usage Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-card analyzed">
+          <div class="card-icon">
+            <i class="bi-clipboard-data"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{formatNumber(analysisData.analyzedItems)}}</div>
+            <div class="card-label">Items Analyzed</div>
+          </div>
+        </div>
+
+        <div class="summary-card daily">
+          <div class="card-icon">
+            <i class="bi-calendar-day"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{formatNumber(analysisData.totalDailyUsage)}}</div>
+            <div class="card-label">Total Daily Usage</div>
+            <div class="card-sublabel">units/day</div>
+          </div>
+        </div>
+
+        <div class="summary-card monthly">
+          <div class="card-icon">
+            <i class="bi-calendar-month"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{formatNumber(analysisData.totalMonthlyUsage)}}</div>
+            <div class="card-label">Total Monthly Usage</div>
+            <div class="card-sublabel">units/month</div>
+          </div>
+        </div>
+
+        <div class="summary-card china">
+          <div class="card-icon">
+            <i class="bi-geo-alt"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{chinaStockItems.length}}</div>
+            <div class="card-label">China Stock Items</div>
+            <div class="card-sublabel">{{formatNumber(getChinaTotalUsage())}} units/month</div>
+          </div>
+        </div>
+
+        <div class="summary-card thai">
+          <div class="card-icon">
+            <i class="bi-house-fill"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-number">{{thaiStockItems.length}}</div>
+            <div class="card-label">Thai Stock Items</div>
+            <div class="card-sublabel">{{formatNumber(getThaiTotalUsage())}} units/month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- View Tabs -->
+    <div class="tabs-section">
+      <div class="tabs-nav">
+        <button class="tab-btn" [class.active]="selectedView === 'usage'" (click)="selectedView = 'usage'">
+          <i class="bi-graph-up-arrow"></i>
+          <span>Top Usage Items</span>
+        </button>
+        <button class="tab-btn" [class.active]="selectedView === 'china'" (click)="selectedView = 'china'">
+          <i class="bi-geo-alt"></i>
+          <span>China Stock Analysis</span>
+          <span class="tab-badge">{{chinaStockItems.length}}</span>
+        </button>
+        <button class="tab-btn" [class.active]="selectedView === 'thai'" (click)="selectedView = 'thai'">
+          <i class="bi-house-fill"></i>
+          <span>Thai Stock Analysis</span>
+          <span class="tab-badge">{{thaiStockItems.length}}</span>
+        </button>
+      </div>
+
+      <!-- Sorting Controls -->
+      <div class="controls-bar">
+        <div class="sort-controls">
+          <label>Sort by:</label>
+          <select class="sort-select" [(ngModel)]="sortBy">
+            <option value="averageMonthlyUsage">Monthly Usage</option>
+            <option value="averageDailyUsage">Daily Usage</option>
+            <option value="currentStock">Current Stock</option>
+            <option value="daysUntilStockOut">Days Until Stockout</option>
+            <option value="stockItemName">Name</option>
+          </select>
+          <button class="sort-btn" (click)="toggleSortOrder()">
+            <i class="bi-sort-{{sortOrder === 'asc' ? 'up' : 'down'}}"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Usage Items Tab -->
+      <div class="tab-content" *ngIf="selectedView === 'usage'">
+        <div class="analysis-table">
+          <table class="usage-table">
+            <thead>
+            <tr>
+              <th class="col-rank">Rank</th>
+              <th class="col-name">Stock Item</th>
+              <th class="col-type">Type</th>
+              <th class="col-stock">Current Stock</th>
+              <th class="col-daily">Daily Usage</th>
+              <th class="col-weekly">Weekly Usage</th>
+              <th class="col-monthly">Monthly Usage</th>
+              <th class="col-usage-bar">Usage Distribution</th>
+              <th class="col-days">Days Left</th>
+              <th class="col-urgency">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of sortedTopUsageItems; let i = index" class="usage-row">
+              <td class="col-rank">
+                <div class="rank-badge" [class.top3]="i < 3">{{i + 1}}</div>
+              </td>
+              <td class="col-name">
+                <div class="item-name-cell">
+                  <strong>{{item.stockItemName}}</strong>
+                </div>
+              </td>
+              <td class="col-type">
+                  <span class="type-badge" [class.china]="item.stockType === 'CHINA'" [class.thai]="item.stockType === 'THAI'">
+                    {{item.stockType}}
+                  </span>
+              </td>
+              <td class="col-stock">{{formatNumber(item.currentStock)}} units</td>
+              <td class="col-daily">{{formatNumber(item.averageDailyUsage)}}</td>
+              <td class="col-weekly">{{formatNumber(item.averageWeeklyUsage)}}</td>
+              <td class="col-monthly">
+                <strong>{{formatNumber(item.averageMonthlyUsage)}}</strong>
+              </td>
+              <td class="col-usage-bar">
+                <div class="usage-bar-container">
+                  <div class="usage-bar"
+                       [style.width.%]="getUsagePercentage(item.averageMonthlyUsage, analysisData.totalMonthlyUsage)">
+                  </div>
+                  <span class="usage-percent">{{getUsagePercentage(item.averageMonthlyUsage, analysisData.totalMonthlyUsage)}}%</span>
+                </div>
+              </td>
+              <td class="col-days">
+                  <span class="days-value" [class.critical]="item.daysUntilStockOut <= 7">
+                    {{item.daysUntilStockOut}}
+                  </span>
+              </td>
+              <td class="col-urgency">
+                  <span class="urgency-badge" [ngClass]="getUrgencyClass(item.urgencyLevel)">
+                    {{item.urgencyLevel}}
+                  </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- China Stock Analysis Tab -->
+      <div class="tab-content" *ngIf="selectedView === 'china'">
+        <div class="type-header china">
+          <h3>🇨🇳 China Stock Analysis</h3>
+          <div class="type-stats">
+            <div class="type-stat">
+              <span class="stat-label">Total Items:</span>
+              <span class="stat-value">{{chinaStockItems.length}}</span>
+            </div>
+            <div class="type-stat">
+              <span class="stat-label">Monthly Usage:</span>
+              <span class="stat-value">{{formatNumber(getChinaTotalUsage())}} units</span>
+            </div>
+            <div class="type-stat">
+              <span class="stat-label">Total Value:</span>
+              <span class="stat-value">{{formatCurrency(getChinaTotalValue())}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis-table">
+          <table class="usage-table">
+            <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-name">Stock Item</th>
+              <th class="col-stock">Current Stock</th>
+              <th class="col-daily">Daily</th>
+              <th class="col-monthly">Monthly</th>
+              <th class="col-value">Stock Value</th>
+              <th class="col-usage-bar">Usage %</th>
+              <th class="col-days">Days Left</th>
+              <th class="col-urgency">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of sortedChinaItems; let i = index" class="usage-row china">
+              <td class="col-rank">{{i + 1}}</td>
+              <td class="col-name">
+                <strong>{{item.stockItemName}}</strong>
+              </td>
+              <td class="col-stock">{{formatNumber(item.currentStock)}}</td>
+              <td class="col-daily">{{formatNumber(item.averageDailyUsage)}}</td>
+              <td class="col-monthly"><strong>{{formatNumber(item.averageMonthlyUsage)}}</strong></td>
+              <td class="col-value">{{formatCurrency(item.currentStockValue)}}</td>
+              <td class="col-usage-bar">
+                <div class="usage-bar-container">
+                  <div class="usage-bar china"
+                       [style.width.%]="getUsagePercentage(item.averageMonthlyUsage, getChinaTotalUsage())">
+                  </div>
+                  <span class="usage-percent">{{getUsagePercentage(item.averageMonthlyUsage, getChinaTotalUsage())}}%</span>
+                </div>
+              </td>
+              <td class="col-days">
+                  <span class="days-value" [class.critical]="item.daysUntilStockOut <= 7">
+                    {{item.daysUntilStockOut}}
+                  </span>
+              </td>
+              <td class="col-urgency">
+                  <span class="urgency-badge" [ngClass]="getUrgencyClass(item.urgencyLevel)">
+                    {{item.urgencyLevel}}
+                  </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-message" *ngIf="chinaStockItems.length === 0">
+          <i class="bi-inbox"></i>
+          <p>No China stock items available</p>
+        </div>
+      </div>
+
+      <!-- Thai Stock Analysis Tab -->
+      <div class="tab-content" *ngIf="selectedView === 'thai'">
+        <div class="type-header thai">
+          <h3>🇹🇭 Thai Stock Analysis</h3>
+          <div class="type-stats">
+            <div class="type-stat">
+              <span class="stat-label">Total Items:</span>
+              <span class="stat-value">{{thaiStockItems.length}}</span>
+            </div>
+            <div class="type-stat">
+              <span class="stat-label">Monthly Usage:</span>
+              <span class="stat-value">{{formatNumber(getThaiTotalUsage())}} units</span>
+            </div>
+            <div class="type-stat">
+              <span class="stat-label">Total Value:</span>
+              <span class="stat-value">{{formatCurrency(getThaiTotalValue())}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="analysis-table">
+          <table class="usage-table">
+            <thead>
+            <tr>
+              <th class="col-rank">#</th>
+              <th class="col-name">Stock Item</th>
+              <th class="col-stock">Current Stock</th>
+              <th class="col-daily">Daily</th>
+              <th class="col-monthly">Monthly</th>
+              <th class="col-value">Stock Value</th>
+              <th class="col-usage-bar">Usage %</th>
+              <th class="col-days">Days Left</th>
+              <th class="col-urgency">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let item of sortedThaiItems; let i = index" class="usage-row thai">
+              <td class="col-rank">{{i + 1}}</td>
+              <td class="col-name">
+                <strong>{{item.stockItemName}}</strong>
+              </td>
+              <td class="col-stock">{{formatNumber(item.currentStock)}}</td>
+              <td class="col-daily">{{formatNumber(item.averageDailyUsage)}}</td>
+              <td class="col-monthly"><strong>{{formatNumber(item.averageMonthlyUsage)}}</strong></td>
+              <td class="col-value">{{formatCurrency(item.currentStockValue)}}</td>
+              <td class="col-usage-bar">
+                <div class="usage-bar-container">
+                  <div class="usage-bar thai"
+                       [style.width.%]="getUsagePercentage(item.averageMonthlyUsage, getThaiTotalUsage())">
+                  </div>
+                  <span class="usage-percent">{{getUsagePercentage(item.averageMonthlyUsage, getThaiTotalUsage())}}%</span>
+                </div>
+              </td>
+              <td class="col-days">
+                  <span class="days-value" [class.critical]="item.daysUntilStockOut <= 7">
+                    {{item.daysUntilStockOut}}
+                  </span>
+              </td>
+              <td class="col-urgency">
+                  <span class="urgency-badge" [ngClass]="getUrgencyClass(item.urgencyLevel)">
+                    {{item.urgencyLevel}}
+                  </span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-message" *ngIf="thaiStockItems.length === 0">
+          <i class="bi-inbox"></i>
+          <p>No Thai stock items available</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !analysisData">
+    <i class="bi-graph-up"></i>
+    <h3>No Analysis Data Available</h3>
+    <p>Calculate forecasts to generate usage analysis</p>
+  </div>
+</div>

@@ -1,0 +1,216 @@
+
+<div class="transaction-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Income & Expense Management</h1>
+      <p class="subtitle">จัดการรายรับ-รายจ่าย และสร้างรายงานทางการเงิน</p>
+    </div>
+    <button class="add-btn" (click)="addTransaction()">
+      <i class="bi-plus-circle"></i>
+      เพิ่มรายการใหม่
+    </button>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="summary-section" *ngIf="summary">
+    <div class="summary-card income">
+      <div class="card-icon">
+        <i class="bi-arrow-down-circle"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-label">รายรับ</div>
+        <div class="card-value">{{formatCurrency(summary.totalIncome)}}</div>
+        <div class="card-count">{{summary.incomeCount}} รายการ</div>
+      </div>
+    </div>
+
+    <div class="summary-card expense">
+      <div class="card-icon">
+        <i class="bi-arrow-up-circle"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-label">รายจ่าย</div>
+        <div class="card-value">{{formatCurrency(summary.totalExpense)}}</div>
+        <div class="card-count">{{summary.expenseCount}} รายการ</div>
+      </div>
+    </div>
+
+    <div class="summary-card net" [class.positive]="(summary.netAmount || 0) >= 0" [class.negative]="(summary.netAmount || 0) < 0">
+      <div class="card-icon">
+        <i class="bi-calculator"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-label">ยอดสุทธิ</div>
+        <div class="card-value">{{formatCurrency(summary.netAmount)}}</div>
+        <div class="card-count">{{summary.transactionCount}} รายการทั้งหมด</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <div class="filter-row">
+      <div class="filter-group">
+        <label>ค้นหา</label>
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="searchTerm"
+          (input)="onFilterChange()"
+          placeholder="ค้นหา...">
+      </div>
+
+      <div class="filter-group">
+        <label>ประเภท</label>
+        <select class="form-control" [(ngModel)]="selectedType" (change)="onFilterChange()">
+          <option value="">ทั้งหมด</option>
+          <option value="INCOME">รายรับ</option>
+          <option value="EXPENSE">รายจ่าย</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>หมวดหมู่</label>
+        <select class="form-control" [(ngModel)]="selectedCategory" (change)="onFilterChange()">
+          <option value="">ทั้งหมด</option>
+          <option *ngFor="let cat of availableCategories" [value]="cat">
+            {{getCategoryLabel(cat)}}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>วันที่เริ่มต้น</label>
+        <input
+          type="date"
+          class="form-control"
+          [(ngModel)]="startDate"
+          (change)="onFilterChange()">
+      </div>
+
+      <div class="filter-group">
+        <label>วันที่สิ้นสุด</label>
+        <input
+          type="date"
+          class="form-control"
+          [(ngModel)]="endDate"
+          (change)="onFilterChange()">
+      </div>
+
+      <div class="filter-actions">
+        <button class="clear-btn" (click)="clearFilters()">
+          <i class="bi-x-circle"></i>
+          ล้างตัวกรอง
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-info">
+      <span class="result-count">
+        พบ {{filteredTransactions.length}} รายการ
+      </span>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>กำลังโหลดข้อมูล...</p>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container" *ngIf="!loading">
+    <table class="transaction-table">
+      <thead>
+      <tr>
+        <th>วันที่</th>
+        <th>ประเภท</th>
+        <th>หมวดหมู่</th>
+        <th>รายละเอียด</th>
+        <th class="text-right">จำนวนเงิน</th>
+        <th>อ้างอิง</th>
+        <th class="text-center">จัดการ</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let transaction of paginatedTransactions">
+        <td>
+          <div class="date-cell">
+            {{formatDate(transaction.transactionDate)}}
+          </div>
+        </td>
+        <td>
+            <span [class]="'badge ' + getTypeClass(transaction.type)">
+              {{getTypeLabel(transaction.type)}}
+            </span>
+        </td>
+        <td>
+          <div class="category-cell">
+            {{getCategoryLabel(transaction.category)}}
+          </div>
+        </td>
+        <td>
+          <div class="description-cell">
+            {{transaction.description || '-'}}
+          </div>
+        </td>
+        <td class="text-right">
+            <span [class]="'amount ' + (transaction.type === 'INCOME' ? 'income' : 'expense')">
+              {{formatCurrency(transaction.amount)}}
+            </span>
+        </td>
+        <td>
+          <button
+            *ngIf="transaction.referenceType"
+            class="reference-btn"
+            (click)="viewReference(transaction)"
+            [title]="'ดู ' + (transaction.referenceType === 'ORDER' ? 'Order' : 'Stock Lot')">
+            <i class="bi-link-45deg"></i>
+            {{transaction.referenceType === 'ORDER' ? transaction.orderNumber : transaction.stockLotName}}
+          </button>
+          <span *ngIf="!transaction.referenceType">-</span>
+        </td>
+        <td class="text-center">
+          <div class="action-buttons">
+            <button class="edit-btn" (click)="editTransaction(transaction.transactionId!)" title="แก้ไข">
+              <i class="bi-pencil"></i>
+            </button>
+            <button class="delete-btn" (click)="deleteTransaction(transaction)" title="ลบ">
+              <i class="bi-trash"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+
+      <tr *ngIf="paginatedTransactions.length === 0">
+        <td colspan="7" class="text-center empty-state">
+          <i class="bi-inbox"></i>
+          <p>ไม่พบรายการที่ตรงกับเงื่อนไข</p>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button
+        class="page-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)">
+        <i class="bi-chevron-left"></i>
+      </button>
+
+      <span class="page-info">
+        หน้า {{currentPage}} จาก {{totalPages}}
+      </span>
+
+      <button
+        class="page-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)">
+        <i class="bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>

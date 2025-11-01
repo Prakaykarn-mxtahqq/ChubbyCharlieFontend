@@ -1,0 +1,104 @@
+<div class="main-container">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{isEditMode ? 'Edit Stock Lot' : 'New Stock Lot'}}</h1>
+      <p>{{isEditMode ? 'Update stock lot details' : 'Create a new stock lot entry'}}</p>
+    </div>
+
+    <form class="stock-lot-form" [formGroup]="stockLotForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-fields">
+          <div class="field-row">
+            <div class="form-group">
+              <label for="lotName">Lot Name <span class="required">*</span></label>
+              <input
+                id="lotName"
+                formControlName="lotName"
+                placeholder="Enter lot name (e.g., LOT-2024-001)"
+                class="form-control"
+                [class.error]="stockLotForm.get('lotName')?.invalid && stockLotForm.get('lotName')?.touched">
+              <div class="error-message" *ngIf="stockLotForm.get('lotName')?.invalid && stockLotForm.get('lotName')?.touched">
+                Lot name is required and must be at least 2 characters
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="status">Status <span class="required">*</span></label>
+              <select
+                id="status"
+                formControlName="status"
+                class="form-control"
+                [class.error]="stockLotForm.get('status')?.invalid && stockLotForm.get('status')?.touched">
+                <option value="PENDING">Pending</option>
+                <option value="ARRIVED">Arrived</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <div class="error-message" *ngIf="stockLotForm.get('status')?.invalid && stockLotForm.get('status')?.touched">
+                Status is required
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="importDate">Import Date</label>
+              <input
+                id="importDate"
+                formControlName="importDate"
+                type="datetime-local"
+                class="form-control"
+                [class.error]="stockLotForm.get('importDate')?.invalid && stockLotForm.get('importDate')?.touched">
+            </div>
+            <div class="form-group">
+              <label for="arrivalDate">Arrival Date</label>
+              <input
+                id="arrivalDate"
+                formControlName="arrivalDate"
+                type="datetime-local"
+                class="form-control"
+                [class.error]="stockLotForm.get('arrivalDate')?.invalid && stockLotForm.get('arrivalDate')?.touched">
+            </div>
+          </div>
+
+          <!-- ลบ totalShippingBath field row ออกแล้ว -->
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="back-btn" (click)="goBack()">
+          <i class="bi bi-arrow-left"></i>
+          Back
+        </button>
+        <button type="submit" class="submit-btn" [disabled]="stockLotForm.invalid">
+          <i class="bi bi-check-circle" *ngIf="!isEditMode"></i>
+          <i class="bi bi-pencil-square" *ngIf="isEditMode"></i>
+          {{isEditMode ? 'Update Stock Lot' : 'Add Stock Lot'}}
+        </button>
+      </div>
+    </form>
+
+    <!-- Stock Lot Preview Card -->
+    <div class="stock-lot-preview" *ngIf="stockLotForm.value.lotName">
+      <h3>Stock Lot Preview</h3>
+      <div class="preview-card">
+        <div class="preview-header">
+          <h4>{{stockLotForm.value.lotName || 'Lot Name'}}</h4>
+          <span class="preview-status" [ngClass]="'status-' + (stockLotForm.value.status || 'PENDING').toLowerCase()">
+            {{stockLotForm.value.status || 'PENDING'}}
+          </span>
+        </div>
+        <div class="preview-details">
+          <div class="detail-item">
+            <span class="label">Import Date:</span>
+            <span class="value">{{stockLotForm.value.importDate || 'Not set'}}</span>
+          </div>
+          <div class="detail-item">
+            <span class="label">Arrival Date:</span>
+            <span class="value">{{stockLotForm.value.arrivalDate || 'Not set'}}</span>
+          </div>
+          <!-- ลบ shipping cost display ออกแล้ว -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

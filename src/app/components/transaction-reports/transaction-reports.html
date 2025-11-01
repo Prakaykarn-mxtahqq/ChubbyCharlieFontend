@@ -1,0 +1,265 @@
+<div class="reports-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>รายงานทางการเงิน</h1>
+      <p class="subtitle">วิเคราะห์รายรับ-รายจ่าย และสรุปผลการดำเนินงาน</p>
+    </div>
+    <div class="header-actions">
+      <button class="export-btn" (click)="exportToCSV()" [disabled]="!monthlyReport">
+        <i class="bi-file-earmark-spreadsheet"></i>
+        Export CSV
+      </button>
+      <button class="print-btn" (click)="printReport()" [disabled]="!monthlyReport">
+        <i class="bi-printer"></i>
+        พิมพ์รายงาน
+      </button>
+    </div>
+  </div>
+
+  <!-- ⭐ Mock Data Warning Banner -->
+  <div class="mock-data-banner" *ngIf="useMockData">
+    <div class="banner-content">
+      <i class="bi-info-circle"></i>
+      <span>กำลังแสดงข้อมูลตัวอย่างสำหรับทดสอบ UI - ข้อมูลนี้ไม่ใช่ข้อมูลจริงจากฐานข้อมูล</span>
+    </div>
+    <button class="banner-close" (click)="retryLoad()">
+      <i class="bi-x"></i>
+    </button>
+  </div>
+
+  <!-- Period Selector -->
+  <div class="period-selector">
+    <div class="selector-group">
+      <label>เลือกปี</label>
+      <select class="form-control" [(ngModel)]="selectedYear" (change)="onYearChange()">
+        <option *ngFor="let year of availableYears" [value]="year">
+          {{year + 543}}
+        </option>
+      </select>
+    </div>
+
+    <div class="selector-group">
+      <label>เลือกเดือน</label>
+      <select class="form-control" [(ngModel)]="selectedMonth" (change)="onMonthChange()">
+        <option *ngFor="let month of months" [value]="month.value">
+          {{month.label}}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner"></div>
+    <p>กำลังโหลดรายงาน...</p>
+  </div>
+
+  <!-- ⭐ Error State -->
+  <div class="error-container" *ngIf="!loading && hasError && !useMockData">
+    <div class="error-icon">
+      <i class="bi-exclamation-triangle"></i>
+    </div>
+    <h3>เกิดข้อผิดพลาดในการโหลดข้อมูล</h3>
+    <p class="error-message">{{errorMessage}}</p>
+
+    <div class="error-solutions">
+      <h4>💡 แนวทางแก้ไข:</h4>
+      <ul>
+        <li>ตรวจสอบว่า Backend API กำลังทำงานอยู่ที่ <code>http://localhost:8080</code></li>
+        <li>ตรวจสอบว่ามี endpoint: <code>GET /api/transactions/reports/monthly</code></li>
+        <li>ตรวจสอบว่ามีข้อมูล Transaction ในฐานข้อมูล</li>
+        <li>ตรวจสอบ Console ของ Backend เพื่อดู Error Log</li>
+      </ul>
+    </div>
+
+    <div class="error-actions">
+      <button class="retry-btn" (click)="retryLoad()">
+        <i class="bi-arrow-clockwise"></i>
+        ลองใหม่อีกครั้ง
+      </button>
+      <button class="mock-data-btn" (click)="loadMockData()">
+        <i class="bi-eye"></i>
+        ใช้ข้อมูลตัวอย่างเพื่อทดสอบ UI
+      </button>
+    </div>
+  </div>
+
+  <!-- Monthly Report -->
+  <div class="report-content" *ngIf="!loading && !hasError && monthlyReport">
+    <!-- Summary Cards -->
+    <div class="summary-section">
+      <h2 class="section-title">สรุปรายเดือน: {{getMonthName(selectedMonth)}} {{selectedYear + 543}}</h2>
+
+      <div class="summary-cards">
+        <div class="summary-card income">
+          <div class="card-icon">
+            <i class="bi-arrow-down-circle"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-label">รายรับทั้งหมด</div>
+            <div class="card-value">{{formatCurrency(monthlyReport.totalIncome)}}</div>
+            <div class="card-count">{{incomeCategories.length}} หมวดหมู่</div>
+          </div>
+        </div>
+
+        <div class="summary-card expense">
+          <div class="card-icon">
+            <i class="bi-arrow-up-circle"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-label">รายจ่ายทั้งหมด</div>
+            <div class="card-value">{{formatCurrency(monthlyReport.totalExpense)}}</div>
+            <div class="card-count">{{expenseCategories.length}} หมวดหมู่</div>
+          </div>
+        </div>
+
+        <div class="summary-card net" [class.positive]="monthlyReport.netAmount >= 0" [class.negative]="monthlyReport.netAmount < 0">
+          <div class="card-icon">
+            <i class="bi-calculator"></i>
+          </div>
+          <div class="card-content">
+            <div class="card-label">กำไร/ขาดทุนสุทธิ</div>
+            <div class="card-value">{{formatCurrency(monthlyReport.netAmount)}}</div>
+            <div class="card-count">{{monthlyReport.transactionCount}} รายการ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="breakdown-section">
+      <div class="breakdown-column income-column">
+        <h3 class="breakdown-title">
+          <i class="bi-arrow-down-circle"></i>
+          รายละเอียดรายรับ
+        </h3>
+
+        <div class="category-list" *ngIf="incomeCategories.length > 0">
+          <div class="category-item" *ngFor="let cat of incomeCategories">
+            <div class="category-header">
+              <span class="category-name">{{getCategoryLabel(cat.category)}}</span>
+              <span class="category-amount">{{formatCurrency(cat.amount)}}</span>
+            </div>
+            <div class="category-details">
+              <span class="category-count">{{cat.count}} รายการ</span>
+              <div class="progress-bar">
+                <div class="progress-fill income" [style.width.%]="cat.percentage"></div>
+              </div>
+              <span class="category-percentage">{{cat.percentage.toFixed(1)}}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="incomeCategories.length === 0">
+          <i class="bi-inbox"></i>
+          <p>ไม่มีรายรับในเดือนนี้</p>
+        </div>
+
+        <div class="breakdown-total">
+          <span>รวมรายรับ</span>
+          <strong>{{formatCurrency(totalIncomeFromBreakdown)}}</strong>
+        </div>
+      </div>
+
+      <div class="breakdown-column expense-column">
+        <h3 class="breakdown-title">
+          <i class="bi-arrow-up-circle"></i>
+          รายละเอียดรายจ่าย
+        </h3>
+
+        <div class="category-list" *ngIf="expenseCategories.length > 0">
+          <div class="category-item" *ngFor="let cat of expenseCategories">
+            <div class="category-header">
+              <span class="category-name">{{getCategoryLabel(cat.category)}}</span>
+              <span class="category-amount">{{formatCurrency(cat.amount)}}</span>
+            </div>
+            <div class="category-details">
+              <span class="category-count">{{cat.count}} รายการ</span>
+              <div class="progress-bar">
+                <div class="progress-fill expense" [style.width.%]="cat.percentage"></div>
+              </div>
+              <span class="category-percentage">{{cat.percentage.toFixed(1)}}%</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="expenseCategories.length === 0">
+          <i class="bi-inbox"></i>
+          <p>ไม่มีรายจ่ายในเดือนนี้</p>
+        </div>
+
+        <div class="breakdown-total">
+          <span>รวมรายจ่าย</span>
+          <strong>{{formatCurrency(totalExpenseFromBreakdown)}}</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Yearly Overview -->
+    <div class="yearly-section" *ngIf="yearlyReports.length > 0">
+      <h2 class="section-title">ภาพรวมทั้งปี {{selectedYear + 543}}</h2>
+
+      <div class="yearly-summary">
+        <div class="yearly-card income">
+          <span class="label">รายรับรวมทั้งปี</span>
+          <span class="value">{{formatCurrency(yearlyTotalIncome)}}</span>
+        </div>
+        <div class="yearly-card expense">
+          <span class="label">รายจ่ายรวมทั้งปี</span>
+          <span class="value">{{formatCurrency(yearlyTotalExpense)}}</span>
+        </div>
+        <div class="yearly-card net" [class.positive]="yearlyNetAmount >= 0" [class.negative]="yearlyNetAmount < 0">
+          <span class="label">กำไร/ขาดทุนสุทธิ</span>
+          <span class="value">{{formatCurrency(yearlyNetAmount)}}</span>
+        </div>
+      </div>
+
+      <div class="monthly-table">
+        <table>
+          <thead>
+          <tr>
+            <th>เดือน</th>
+            <th class="text-right">รายรับ</th>
+            <th class="text-right">รายจ่าย</th>
+            <th class="text-right">กำไร/ขาดทุน</th>
+            <th class="text-center">จำนวนรายการ</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let report of yearlyReports"
+              [class.current-month]="report.month === getMonthName(selectedMonth)">
+            <td>{{report.month}}</td>
+            <td class="text-right income-text">{{formatCurrency(report.totalIncome)}}</td>
+            <td class="text-right expense-text">{{formatCurrency(report.totalExpense)}}</td>
+            <td class="text-right" [class.income-text]="report.netAmount >= 0" [class.expense-text]="report.netAmount < 0">
+              {{formatCurrency(report.netAmount)}}
+            </td>
+            <td class="text-center">{{report.transactionCount}}</td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr class="total-row">
+            <td><strong>รวมทั้งปี</strong></td>
+            <td class="text-right"><strong>{{formatCurrency(yearlyTotalIncome)}}</strong></td>
+            <td class="text-right"><strong>{{formatCurrency(yearlyTotalExpense)}}</strong></td>
+            <td class="text-right"><strong>{{formatCurrency(yearlyNetAmount)}}</strong></td>
+            <td class="text-center"><strong>{{getTotalTransactionCount()}}</strong></td>
+          </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Data (แสดงเฉพาะเมื่อ API สำเร็จแต่ไม่มีข้อมูล) -->
+  <div class="no-data" *ngIf="!loading && !hasError && !monthlyReport && !useMockData">
+    <i class="bi-file-earmark-x"></i>
+    <h3>ไม่มีข้อมูลในช่วงเวลาที่เลือก</h3>
+    <p>กรุณาเลือกช่วงเวลาอื่น หรือเพิ่มรายการใหม่</p>
+    <button class="mock-data-btn" (click)="loadMockData()">
+      <i class="bi-eye"></i>
+      ดูตัวอย่าง UI ด้วยข้อมูลจำลอง
+    </button>
+  </div>
+</div>

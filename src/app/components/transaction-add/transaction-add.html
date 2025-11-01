@@ -1,0 +1,185 @@
+<div class="add-transaction-container" *ngIf="!loading">
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi-arrow-left"></i> กลับ
+    </button>
+    <h1>{{isEditMode ? 'แก้ไขรายการ' : 'เพิ่มรายการใหม่'}}</h1>
+    <p class="subtitle">กรอกข้อมูลรายรับ-รายจ่าย</p>
+  </div>
+
+  <form (ngSubmit)="onSubmit()" class="transaction-form">
+    <!-- Transaction Type & Category -->
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-tag"></i>
+        <h2>ประเภทรายการ</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required">ประเภท</label>
+          <select class="form-control" [(ngModel)]="type" name="type" (change)="onTypeChange()" required>
+            <option value="INCOME">รายรับ</option>
+            <option value="EXPENSE">รายจ่าย</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="required">หมวดหมู่</label>
+          <select class="form-control" [(ngModel)]="category" name="category" required>
+            <option *ngFor="let cat of availableCategories" [value]="cat">
+              {{getCategoryLabel(cat)}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Amount & Date -->
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-cash-coin"></i>
+        <h2>จำนวนเงินและวันที่</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required">จำนวนเงิน (บาท)</label>
+          <input
+            type="number"
+            class="form-control amount-input"
+            [(ngModel)]="amount"
+            name="amount"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            required>
+
+          <!-- Quick Amount Buttons -->
+          <div class="quick-amount-buttons">
+            <button type="button" class="quick-btn" (click)="setQuickAmount(100)">100฿</button>
+            <button type="button" class="quick-btn" (click)="setQuickAmount(500)">500฿</button>
+            <button type="button" class="quick-btn" (click)="setQuickAmount(1000)">1,000฿</button>
+            <button type="button" class="quick-btn" (click)="setQuickAmount(5000)">5,000฿</button>
+            <button type="button" class="quick-btn" (click)="setQuickAmount(10000)">10,000฿</button>
+          </div>
+
+          <div class="amount-preview" *ngIf="amount">
+            <span [class]="type === 'INCOME' ? 'income' : 'expense'">
+              {{formatCurrency(amount)}}
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="required">วันที่ทำรายการ</label>
+          <input
+            type="datetime-local"
+            class="form-control"
+            [(ngModel)]="transactionDate"
+            name="transactionDate"
+            required>
+        </div>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-file-text"></i>
+        <h2>รายละเอียด</h2>
+      </div>
+
+      <div class="form-group full-width">
+        <label>รายละเอียดเพิ่มเติม</label>
+        <textarea
+          class="form-control"
+          [(ngModel)]="description"
+          name="description"
+          rows="4"
+          placeholder="กรอกรายละเอียดเพิ่มเติม (ถ้ามี)"></textarea>
+      </div>
+    </div>
+
+    <!-- Reference (Optional) -->
+    <div class="form-section">
+      <div class="section-header">
+        <i class="bi-link-45deg"></i>
+        <h2>เชื่อมโยงข้อมูล (ถ้ามี)</h2>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>ประเภทการอ้างอิง</label>
+          <select class="form-control" [(ngModel)]="referenceType" name="referenceType" (change)="onReferenceTypeChange()">
+            <option value="">ไม่มี</option>
+            <option value="ORDER">Order</option>
+            <option value="STOCK_LOT">Stock Lot</option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="referenceType === 'ORDER'">
+          <label>เลือก Order</label>
+          <select class="form-control" [(ngModel)]="referenceId" name="referenceId">
+            <option [value]="null">-- เลือก Order --</option>
+            <option *ngFor="let order of filteredOrders" [value]="order.orderId">
+              {{order.orderNumber}} - {{order.customerName}} ({{formatCurrency(order.netAmount)}})
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group" *ngIf="referenceType === 'STOCK_LOT'">
+          <label>เลือก Stock Lot</label>
+          <select class="form-control" [(ngModel)]="referenceId" name="referenceId">
+            <option [value]="null">-- เลือก Stock Lot --</option>
+            <option *ngFor="let lot of filteredStockLots" [value]="lot.stockLotId">
+              {{lot.lotName}} - {{lot.status}}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preview Card -->
+    <div class="preview-section" *ngIf="amount > 0">
+      <h3>ตัวอย่างรายการ</h3>
+      <div class="preview-card" [class.income]="type === 'INCOME'" [class.expense]="type === 'EXPENSE'">
+        <div class="preview-header">
+          <span class="preview-type">{{type === 'INCOME' ? 'รายรับ' : 'รายจ่าย'}}</span>
+          <span class="preview-amount">{{formatCurrency(amount)}}</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-item">
+            <span class="label">หมวดหมู่:</span>
+            <span class="value">{{getCategoryLabel(category)}}</span>
+          </div>
+          <div class="preview-item">
+            <span class="label">วันที่:</span>
+            <span class="value">{{transactionDate || 'ยังไม่ได้เลือก'}}</span>
+          </div>
+          <div class="preview-item" *ngIf="description">
+            <span class="label">รายละเอียด:</span>
+            <span class="value">{{description}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="goBack()">
+        <i class="bi-x-circle"></i> ยกเลิก
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="submitting">
+        <div class="loading-spinner" *ngIf="submitting"></div>
+        <i class="bi-check-circle" *ngIf="!submitting"></i>
+        {{submitting ? 'กำลังบันทึก...' : (isEditMode ? 'บันทึกการแก้ไข' : 'เพิ่มรายการ')}}
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-spinner"></div>
+  <p>กำลังโหลดข้อมูล...</p>
+</div>

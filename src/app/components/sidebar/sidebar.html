@@ -1,0 +1,77 @@
+<nav class="sidebar" [class.collapsed]="isCollapsed">
+  <!-- Logo Section -->
+  <div class="sidebar-header">
+    <div class="logo-container" (click)="toggleSidebar()">
+      <div class="logo-circle">
+        <img src="/logo.jpg" alt="Chubby Charlie Logo" class="logo-image">
+      </div>
+    </div>
+  </div>
+
+  <!-- Menu Items -->
+  <div class="sidebar-menu">
+    <ul class="nav flex-column">
+      <li class="nav-item" *ngFor="let item of menuItems">
+        <!-- Main Menu Item -->
+        <a class="nav-link"
+           [class.active]="isActiveRoute(item.route)"
+           [class.has-submenu]="item.subItems"
+           [title]="isCollapsed ? item.label : ''"
+           (click)="item.subItems ? toggleSubMenu(item, $event) : navigateToRoute(item.route)">
+          <i class="{{item.icon}} menu-icon"></i>
+          <span class="menu-text" [class.hidden]="isCollapsed">{{item.label}}</span>
+          <i class="bi-chevron-down submenu-arrow"
+             *ngIf="item.subItems && !isCollapsed"
+             [class.expanded]="isMenuExpanded(item.route)"></i>
+        </a>
+
+        <!-- Submenu -->
+        <ul class="submenu"
+            *ngIf="item.subItems && !isCollapsed"
+            [class.expanded]="isMenuExpanded(item.route)">
+          <li class="submenu-item" *ngFor="let subItem of item.subItems">
+            <a class="submenu-link"
+               [class.active]="isSubItemActive(subItem)"
+               (click)="navigateToRoute(subItem.route)"
+               [routerLink]="subItem.route">
+              <i class="{{subItem.icon}} submenu-icon"></i>
+              <span class="submenu-text">{{subItem.label}}</span>
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ⭐ Profile Section at Bottom (ด้านล่างสุด - กะทัดรัด) -->
+  <div class="sidebar-footer" *ngIf="currentUser">
+    <!-- Divider -->
+    <div class="footer-divider"></div>
+
+    <!-- Profile Expanded -->
+    <div class="profile-compact" *ngIf="!isCollapsed">
+      <div class="profile-avatar-compact">
+        <span class="avatar-initial-compact">{{userInitial}}</span>
+      </div>
+      <div class="profile-info-compact">
+        <h4 class="profile-name-compact">{{userName}}</h4>
+        <p class="profile-role-compact">{{userRole}}</p>
+      </div>
+      <div class="profile-actions-compact">
+        <button class="action-btn-compact logout" (click)="logout()" title="Logout">
+          <i class="bi-box-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Profile Collapsed -->
+    <div class="profile-collapsed-footer" *ngIf="isCollapsed">
+      <button class="profile-avatar-collapsed" [title]="userName" (click)="navigateToSettings()">
+        <span class="avatar-initial-compact">{{userInitial}}</span>
+      </button>
+      <button class="logout-btn-collapsed" (click)="logout()" title="Logout">
+        <i class="bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</nav>

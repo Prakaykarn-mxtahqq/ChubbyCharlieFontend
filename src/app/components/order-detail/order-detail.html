@@ -1,0 +1,180 @@
+<div class="detail-container" *ngIf="!loading && order">
+  <!-- Header -->
+  <div class="detail-header">
+    <button class="back-btn" (click)="goBack()">
+      <i class="bi-arrow-left"></i> กลับ
+    </button>
+    <h1>รายละเอียดออเดอร์ #{{order.orderNumber}}</h1>
+  </div>
+
+  <!-- Main Content -->
+  <div class="detail-content">
+    <!-- Order Info Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h2>ข้อมูลออเดอร์</h2>
+        <div class="header-badges">
+          <span [class]="getStatusClass(order.status)">
+            {{order.status}}
+          </span>
+          <span [class]="getPaymentStatusClass(order.paymentStatus)">
+            {{order.paymentStatus}}
+          </span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">แหล่งที่มา:</span>
+            <span class="value">{{order.source}}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">วันที่สั่ง:</span>
+            <span class="value">{{formatDate(order.orderDate)}}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">วันที่ส่ง:</span>
+            <span class="value">{{formatDate(order.deliveryDate)}}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">ไฟล์ต้นฉบับ:</span>
+            <span class="value">{{order.originalFileName || '-'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Customer Info Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h2>ข้อมูลลูกค้า</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">ชื่อลูกค้า:</span>
+            <span class="value">{{order.customerName}}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">เบอร์โทร:</span>
+            <span class="value">{{order.customerPhone || '-'}}</span>
+          </div>
+          <div class="info-item full-width">
+            <span class="label">ที่อยู่จัดส่ง:</span>
+            <span class="value">{{order.shippingAddress || '-'}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Items Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h2>รายการสินค้า</h2>
+      </div>
+
+      <div class="card-body">
+        <table class="items-table">
+          <thead>
+          <tr>
+            <th>ลำดับ</th>
+            <th>ชื่อสินค้า</th>
+            <th>SKU</th>
+            <th class="text-center">จำนวน</th>
+            <th class="text-right">ราคา/หน่วย</th>
+            <th class="text-right">รวม</th>
+            <th class="text-center">Stock</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let item of order.orderItems; let i = index">
+            <td>{{i + 1}}</td>
+            <td>{{item.productName}}</td>
+            <td>{{item.productSku || '-'}}</td>
+            <td class="text-center">{{item.quantity}}</td>
+            <td class="text-right">{{formatCurrency(item.unitPrice)}}</td>
+            <td class="text-right">{{formatCurrency(item.totalPrice)}}</td>
+            <td class="text-center">
+                <span [class]="getStockDeductionClass(item.stockDeductionStatus)">
+                  {{item.stockDeductionStatus}}
+                </span>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="info-card">
+      <div class="card-header">
+        <h2>สรุปยอด</h2>
+      </div>
+
+      <div class="card-body">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">ยอดรวมสินค้า:</span>
+            <span class="value">{{formatCurrency(order.totalAmount)}}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">ค่าจัดส่ง:</span>
+            <span class="value">{{formatCurrency(order.shippingFee)}}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">ส่วนลด:</span>
+            <span class="value text-red">-{{formatCurrency(order.discount)}}</span>
+          </div>
+          <div class="summary-item total">
+            <span class="label">ยอดสุทธิ:</span>
+            <span class="value">{{formatCurrency(order.netAmount)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Card -->
+    <div class="actions-card">
+      <h3>การดำเนินการ</h3>
+
+      <div class="actions-grid">
+        <button class="action-btn primary" (click)="editOrder()">
+          <i class="bi-pencil"></i>
+          แก้ไขออเดอร์
+        </button>
+
+        <button class="action-btn success" (click)="checkStock()">
+          <i class="bi-box-seam"></i>
+          เช็ค Stock
+        </button>
+
+        <button class="action-btn warning" (click)="deductStock()">
+          <i class="bi-bag-x"></i>
+          ตัด Stock
+        </button>
+
+        <button class="action-btn info" (click)="updateStatus('CONFIRMED')">
+          <i class="bi-check-circle"></i>
+          ยืนยันออเดอร์
+        </button>
+
+        <button class="action-btn info" (click)="updatePaymentStatus('PAID')">
+          <i class="bi-cash"></i>
+          ชำระเงินแล้ว
+        </button>
+
+        <button class="action-btn danger" (click)="cancelOrder()">
+          <i class="bi-x-circle"></i>
+          ยกเลิกออเดอร์
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="loading-container" *ngIf="loading">
+  <div class="loading-spinner"></div>
+  <p>กำลังโหลดข้อมูล...</p>
+</div>

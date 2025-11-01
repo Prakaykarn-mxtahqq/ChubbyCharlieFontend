@@ -1,0 +1,207 @@
+<div class="main-container">
+  <div class="container">
+    <div class="page-header">
+      <h1>{{isEditMode ? 'Edit Employee' : 'New Employee'}}</h1>
+      <p>{{isEditMode ? 'Update employee details' : 'Create account for a new employee'}}</p>
+    </div>
+
+    <form class="staff-form" [formGroup]="staffForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+<!--        <div class="photo-upload-section">-->
+<!--          <div class="photo-upload" (click)="triggerFileUpload()">-->
+<!--            <div class="upload-placeholder">-->
+<!--              <i class="fas fa-camera"></i>-->
+<!--              <p>Upload photo</p>-->
+<!--            </div>-->
+<!--            <input type="file" id="fileInput" accept="image/*" style="display: none" (change)="onFileSelected($event)">-->
+<!--          </div>-->
+<!--          <div class="upload-info">-->
+<!--            <p class="format-text">Allowed format</p>-->
+<!--            <p class="formats">JPG, JPEG, and PNG</p>-->
+<!--            <p class="size-text">Max file size</p>-->
+<!--            <p class="size">2MB</p>-->
+<!--          </div>-->
+<!--        </div>-->
+
+        <div class="form-fields">
+          <div class="field-row">
+            <div class="form-group">
+              <label for="empName">Employee Name</label>
+              <input
+                id="empName"
+                formControlName="empName"
+                placeholder="Enter employee name"
+                class="form-control"
+                [class.error]="staffForm.get('empName')?.invalid && staffForm.get('empName')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('empName')?.invalid && staffForm.get('empName')?.touched">
+                Employee name is required and must be at least 2 characters
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                id="email"
+                formControlName="email"
+                placeholder="Enter email address"
+                class="form-control"
+                [class.error]="staffForm.get('email')?.invalid && staffForm.get('email')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('email')?.invalid && staffForm.get('email')?.touched">
+                Please enter a valid email address
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="empAddress">Address</label>
+              <input
+                id="empAddress"
+                formControlName="empAddress"
+                placeholder="Enter employee address"
+                class="form-control"
+                [class.error]="staffForm.get('empAddress')?.invalid && staffForm.get('empAddress')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('empAddress')?.invalid && staffForm.get('empAddress')?.touched">
+                Address is required and must be at least 5 characters
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="empPhone">Phone Number</label>
+              <input
+                id="empPhone"
+                formControlName="empPhone"
+                placeholder="Enter phone number"
+                class="form-control"
+                [class.error]="staffForm.get('empPhone')?.invalid && staffForm.get('empPhone')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('empPhone')?.invalid && staffForm.get('empPhone')?.touched">
+                Please enter a valid phone number (10-11 digits)
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="empType">Employee Type</label>
+              <select
+                id="empType"
+                formControlName="empType"
+                class="form-control"
+                [class.error]="staffForm.get('empType')?.invalid && staffForm.get('empType')?.touched">
+                <option value="">Select employee type</option>
+                <option value="DAILY">Daily Worker</option>
+                <option value="MONTHLY">Monthly Worker</option>
+              </select>
+              <div class="error-message" *ngIf="staffForm.get('empType')?.invalid && staffForm.get('empType')?.touched">
+                Employee type is required
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="role">Role</label>
+              <select
+                id="role"
+                formControlName="role"
+                class="form-control"
+                [class.error]="staffForm.get('role')?.invalid && staffForm.get('role')?.touched">
+                <option value="">Select role</option>
+                <option value="Admin">Admin</option>
+                <option value="Manager">Manager</option>
+                <option value="Operations">Operations</option>
+              </select>
+              <div class="error-message" *ngIf="staffForm.get('role')?.invalid && staffForm.get('role')?.touched">
+                Role is required
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group" *ngIf="staffForm.get('empType')?.value === 'DAILY'">
+              <label for="dailyWage">Daily Wage (฿)</label>
+              <input
+                id="dailyWage"
+                formControlName="dailyWage"
+                placeholder="Enter daily wage amount"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                [class.error]="staffForm.get('dailyWage')?.invalid && staffForm.get('dailyWage')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('dailyWage')?.invalid && staffForm.get('dailyWage')?.touched">
+                Daily wage is required and must be greater than 0
+              </div>
+            </div>
+            <div class="form-group" *ngIf="staffForm.get('empType')?.value === 'MONTHLY'">
+              <label for="monthlySalary">Monthly Salary (฿)</label>
+              <input
+                id="monthlySalary"
+                formControlName="monthlySalary"
+                placeholder="Enter monthly salary amount"
+                class="form-control"
+                type="number"
+                min="0"
+                step="0.01"
+                [class.error]="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('monthlySalary')?.invalid && staffForm.get('monthlySalary')?.touched">
+                Monthly salary is required and must be greater than 0
+              </div>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input
+                id="username"
+                formControlName="username"
+                placeholder="Enter username"
+                class="form-control"
+                [class.error]="staffForm.get('username')?.invalid && staffForm.get('username')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('username')?.invalid && staffForm.get('username')?.touched">
+                Username is required and must be at least 3 characters
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                id="password"
+                formControlName="password"
+                placeholder="Enter password"
+                type="password"
+                class="form-control"
+                [class.error]="staffForm.get('password')?.invalid && staffForm.get('password')?.touched">
+              <div class="error-message" *ngIf="staffForm.get('password')?.invalid && staffForm.get('password')?.touched">
+                Password is required and must be at least 6 characters
+              </div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select
+                id="status"
+                formControlName="status"
+                class="form-control"
+                [class.error]="staffForm.get('status')?.invalid && staffForm.get('status')?.touched">
+                <option value="ACTIVE">Active</option>
+                <option value="INACTIVE">Inactive</option>
+              </select>
+              <div class="error-message" *ngIf="staffForm.get('status')?.invalid && staffForm.get('status')?.touched">
+                Status is required
+              </div>
+            </div>
+            <!-- ... other fields ... -->
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="back-btn" (click)="goBack()">
+          <i class="fas fa-arrow-left"></i>
+          Back
+        </button>
+        <button type="submit" class="submit-btn" [disabled]="staffForm.invalid">
+          <i class="fas fa-plus"></i>
+          {{isEditMode ? 'Update Employee' : 'Add Employee'}}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

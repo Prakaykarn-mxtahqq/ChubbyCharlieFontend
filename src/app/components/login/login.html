@@ -1,0 +1,96 @@
+<div class="login-container">
+  <div class="login-card">
+    <!-- Logo & Title -->
+    <div class="login-header">
+      <div class="logo">
+        <i class="bi-shield-lock"></i>
+      </div>
+      <h1>เข้าสู่ระบบ</h1>
+      <p class="subtitle">Stock Management System</p>
+    </div>
+
+    <!-- Error Message -->
+    <div class="alert alert-error" *ngIf="errorMessage">
+      <i class="bi-exclamation-circle"></i>
+      <span>{{errorMessage}}</span>
+      <button class="alert-close" (click)="clearError()">
+        <i class="bi-x"></i>
+      </button>
+    </div>
+
+    <!-- Login Form -->
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      <!-- Username -->
+      <div class="form-group">
+        <label for="username">ชื่อผู้ใช้</label>
+        <div class="input-group">
+          <i class="bi-person input-icon"></i>
+          <input
+            type="text"
+            id="username"
+            class="form-input"
+            placeholder="กรอกชื่อผู้ใช้"
+            [(ngModel)]="username"
+            name="username"
+            [disabled]="loading"
+            (input)="clearError()"
+            autocomplete="username"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label for="password">รหัสผ่าน</label>
+        <div class="input-group">
+          <i class="bi-lock input-icon"></i>
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            class="form-input"
+            placeholder="กรอกรหัสผ่าน"
+            [(ngModel)]="password"
+            name="password"
+            [disabled]="loading"
+            (input)="clearError()"
+            autocomplete="current-password"
+            required
+          />
+          <button
+            type="button"
+            class="password-toggle"
+            (click)="togglePasswordVisibility()"
+            [disabled]="loading"
+          >
+            <i [class]="showPassword ? 'bi-eye-slash' : 'bi-eye'"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="login-btn"
+        [disabled]="loading || !username || !password"
+      >
+        <span *ngIf="!loading">
+          <i class="bi-box-arrow-in-right"></i>
+          เข้าสู่ระบบ
+        </span>
+        <span *ngIf="loading" class="loading-spinner">
+          <i class="bi-arrow-repeat spin"></i>
+          กำลังเข้าสู่ระบบ...
+        </span>
+      </button>
+    </form>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p class="info-text">
+        <i class="bi-info-circle"></i>
+        สำหรับ Admin และ Manager เท่านั้น
+      </p>
+    </div>
+  </div>
+
