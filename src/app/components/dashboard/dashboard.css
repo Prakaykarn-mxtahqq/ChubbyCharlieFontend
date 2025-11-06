@@ -267,6 +267,56 @@
     }
 }
 
+.transaction-card.expense::before {
+   content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle at top right,
+      rgba(239, 68, 68, 0.4),
+      rgba(220, 38, 38, 0.2),
+      transparent);
+    border-bottom-left-radius: 120px;
+    animation: gradientMove 4s infinite alternate ease-in-out;
+}
+
+@keyframes gradientMove {
+  0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.2) translate(-10px, 10px);
+    }
+}
+
+.transaction-card.profit::before {
+   content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.4),
+      rgba(96, 165, 250, 0.2),
+      transparent);
+    border-bottom-left-radius: 120px;
+    animation: gradientMove 4s infinite alternate ease-in-out;
+}
+
+@keyframes gradientMove {
+  0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.2) translate(-10px, 10px);
+    }
+}
+
 .transaction-card {
   position: relative;
   z-index: 1;
