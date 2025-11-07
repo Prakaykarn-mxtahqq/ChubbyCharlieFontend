@@ -112,14 +112,58 @@
 }
 
 .summary-card {
-  background: white;
+  position: relative;
+  background: #fff;
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   display: flex;
   gap: 18px;
-  transition: all 0.25s ease;
+  align-items: center;
+  overflow: hidden;
   border: 1px solid #f1f5f9;
+}
+
+.summary-card.card-indigo::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at top right,
+      rgba(99, 102, 241, 0.4),
+      rgba(129, 140, 248, 0.2),
+      transparent);
+  border-bottom-left-radius: 60px;
+}
+
+.summary-card.card-amber::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at top right,
+      rgba(245, 158, 11, 0.4),
+      rgba(251, 191, 36, 0.2),
+      transparent);
+  border-bottom-left-radius: 60px;
+}
+
+.summary-card.card-green::before {
+  content: "";
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle at top right,
+      rgba(34, 197, 94, 0.4),
+      rgba(74, 222, 128, 0.2),
+      transparent);
+  border-bottom-left-radius: 60px;
 }
 
 .summary-card:hover {
@@ -192,6 +236,9 @@
   box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
   border-left: 5px solid;
   transition: all 0.2s ease;
+  position: relative;
+  align-items: center;
+  overflow: hidden;
 }
 
 .transaction-card:hover {
@@ -217,6 +264,86 @@
 .transaction-card.income .transaction-icon    { background: #d1fae5; color: #10b981; }
 .transaction-card.expense .transaction-icon   { background: #fee2e2; color: #ef4444; }
 .transaction-card.profit .transaction-icon    { background: #dbeafe; color: #3b82f6; }
+
+.transaction-card.income::before {
+   content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle at top right,
+      rgba(74, 222, 128, 0.4),
+      rgba(34, 197, 94, 0.2),
+      transparent);
+    border-bottom-left-radius: 120px;
+    animation: gradientMove 4s infinite alternate ease-in-out;
+}
+
+@keyframes gradientMove {
+  0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.2) translate(-10px, 10px);
+    }
+}
+
+.transaction-card.expense::before {
+   content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle at top right,
+      rgba(239, 68, 68, 0.4),
+      rgba(220, 38, 38, 0.2),
+      transparent);
+    border-bottom-left-radius: 120px;
+    animation: gradientMove 4s infinite alternate ease-in-out;
+}
+
+@keyframes gradientMove {
+  0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.2) translate(-10px, 10px);
+    }
+}
+
+.transaction-card.profit::before {
+   content: "";
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    width: 160px;
+    height: 160px;
+    background: radial-gradient(
+      circle at top right,
+      rgba(59, 130, 246, 0.4),
+      rgba(96, 165, 250, 0.2),
+      transparent);
+    border-bottom-left-radius: 120px;
+    animation: gradientMove 4s infinite alternate ease-in-out;
+}
+
+@keyframes gradientMove {
+  0% {
+      transform: scale(1) translate(0, 0);
+    }
+    100% {
+      transform: scale(1.2) translate(-10px, 10px);
+    }
+}
+
+.transaction-card {
+  position: relative;
+  z-index: 1;
+}
 
 .transaction-label {
   font-size: 13px;
