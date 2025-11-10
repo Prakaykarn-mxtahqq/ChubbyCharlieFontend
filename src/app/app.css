@@ -1,5 +1,5 @@
 /* Container หลัก - ปรับให้รองรับทั้ง 2 โหมด */
-.app-container {
+  .app-container {
   min-height: 100vh;
   background-color: #f8fafc;
 }
