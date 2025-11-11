@@ -293,29 +293,28 @@ export class DashboardComponent implements OnInit {
 
   private async loadMonthlyTransactions(): Promise<void> {
     return new Promise((resolve) => {
-      this.dashboardService.getMonthlyTransactions(6).subscribe({
+      this.dashboardService.getLastSixMonthsTransactions().subscribe({
         next: (data: any[]) => {
-          if (data?.length > 0) {
-            const labels = data.map(d => d.month);
-            const income = data.map(d => d.income || 0);
-            const expense = data.map(d => d.expense || 0);
-            const profit = income.map((inc, i) => inc - (expense[i] || 0));
+          const labels = data.map(d => d.month); // ["มิถุนายน", ..., "พฤศจิกายน"]
+          const income = data.map(d => d.totalIncome);
+          const expense = data.map(d => d.totalExpense);
+          const profit = data.map(d => d.netAmount);
 
-            this.transactionLineChartData = {
-              labels,
-              datasets: [
-                { ...this.transactionLineChartData.datasets[0], data: income },
-                { ...this.transactionLineChartData.datasets[1], data: expense },
-                { ...this.transactionLineChartData.datasets[2], data: profit }
-              ]
-            };
-          }
+          this.transactionLineChartData = {
+            labels,
+            datasets: [
+              { ...this.transactionLineChartData.datasets[0], data: income },
+              { ...this.transactionLineChartData.datasets[1], data: expense },
+              { ...this.transactionLineChartData.datasets[2], data: profit }
+            ]
+          };
           resolve();
         },
         error: () => resolve()
       });
     });
   }
+
 
   private async loadOrdersBySource(): Promise<void> {
     return new Promise((resolve) => {
