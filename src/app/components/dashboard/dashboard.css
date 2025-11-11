@@ -280,8 +280,59 @@
 }
 
 .transaction-card.income .transaction-icon    { background: #d1fae5; color: #10b981; }
+
+.transaction-card.income::before {
+  background: radial-gradient(circle at top right, #EDC558, transparent 70%);
+  top: -60px;
+  right: -60px;
+}
+
 .transaction-card.expense .transaction-icon   { background: #fee2e2; color: #ef4444; }
+
+.transaction-card.expense::before {
+  background: radial-gradient(circle at top right, #EC8028, transparent 70%);
+  top: -60px;
+  right: -60px;
+}
+
 .transaction-card.profit .transaction-icon    { background: #dbeafe; color: #3b82f6; }
+
+.transaction-card.profit::before {
+  background: radial-gradient(circle at top right, #66BCB4, transparent 70%);
+  top: -60px;
+  right: -60px;
+}
+
+.transaction-card::after {
+  content: "";
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 100px;
+  height: 100px;
+  opacity: 0.12;
+  background-repeat: no-repeat;
+  background-size: contain;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.transaction-card.income::after {
+  background-image: url('/income.png');
+}
+
+.transaction-card.expense::after {
+  background-image: url('/expense.png');
+}
+
+.transaction-card.profit::after {
+  background-image: url('/profit.png');
+}
+
+.transaction-content, .transaction-icon {
+  position: relative;
+  z-index: 2;
+}
 
 .transaction-card {
   position: relative;
@@ -293,16 +344,14 @@
 .transaction-card::before {
   content: "";
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 150px;
-  height: 150px;
-  background-size: contain;
-  background-repeat: no-repeat;
-  opacity: 0.15;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  opacity: 0.4;
+  filter: blur(80px);
+  z-index: 0;
   pointer-events: none;
 }
-
 
 .transaction-label {
   font-size: 13px;
