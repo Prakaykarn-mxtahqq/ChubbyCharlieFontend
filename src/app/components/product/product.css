@@ -145,7 +145,7 @@
 
 /* Buttons */
 .add-product-btn {
-  background-color: #3b82f6;
+  background-color: #EC8028;
   color: white;
   border: none;
   padding: 0.75rem 1.25rem;
@@ -160,12 +160,12 @@
 }
 
 .add-product-btn:hover {
-  background-color: #2563eb;
+  background-color: #E87110;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .recalculate-btn {
-  background-color: #059669;
+  background-color: #66BCB4;
   color: white;
   border: none;
   padding: 0.75rem 1.25rem;
@@ -180,7 +180,7 @@
 }
 
 .recalculate-btn:hover:not(:disabled) {
-  background-color: #047857;
+  background-color: #5BA59B;
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 
@@ -291,10 +291,10 @@
   display: inline-block;
 }
 
-.badge-green { background-color: #d1fae5; color: #065f46; }
-.badge-red { background-color: #fee2e2; color: #dc2626; }
-.badge-orange { background-color: #fed7aa; color: #c2410c; }
-.badge-gray { background-color: #f3f4f6; color: #374151; }
+.badge-green.status-badge { background: #66BCB4; color: white; }
+.badge-orange.status-badge { background: #EC8028; color: white; }
+.badge-red.status-badge { background: #EDC558; color: #1F2937; }
+.badge-gray.status-badge { background: #E8CCAD; color: #374151; }
 
 /* Negative values styling */
 .negative {
@@ -368,7 +368,7 @@
 
 .dropdown-item.delete-item:hover {
   background-color: #fee2e2;
-  color: #dc2626;
+  color: #EC8028;
 }
 
 .dropdown-divider {
@@ -595,8 +595,8 @@
 
 /* View Toggle Button */
 .view-toggle-btn {
-  background-color: #6b7280;
-  color: white;
+  background-color: #EDC558;
+  color: #1F2937;
   border: none;
   padding: 0.75rem 1.25rem;
   border-radius: 0.5rem;
@@ -610,7 +610,7 @@
 }
 
 .view-toggle-btn:hover {
-  background-color: #4b5563;
+  background-color: #E6B845;
   box-shadow: 0 4px 12px rgba(107, 114, 128, 0.2);
 }
 
@@ -632,15 +632,15 @@
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border: 2px solid #f3f4f6;
+  border: 2px solid #E8CCAD;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
 
 .product-card:hover {
   transform: translateY(-12px);
-  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
-  border-color: #3b82f6;
+  border-color: #EC8028;
+  box-shadow: 0 20px 40px rgba(236, 128, 40, 0.25);
 }
 
 /* ========================================
@@ -984,13 +984,13 @@
 }
 
 .card-action-btn.primary {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: #EC8028;
   color: white;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 .card-action-btn.primary:hover {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: #E87110;
   transform: translateY(-3px);
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
 }
