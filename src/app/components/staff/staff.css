@@ -28,12 +28,12 @@
 .staff-icon {
   width: 40px;
   height: 40px;
-  background-color: #eff6ff;
+  background-color: #66BCB4;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
+  color: white;
   font-size: 1.25rem;
 }
 
