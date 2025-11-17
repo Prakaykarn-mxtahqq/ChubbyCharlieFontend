@@ -160,7 +160,7 @@
 }
 
 .add-product-btn:hover {
-  background-color: #E87110;
+  background-color: #EDC558;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
@@ -180,7 +180,7 @@
 }
 
 .recalculate-btn:hover:not(:disabled) {
-  background-color: #5BA59B;
+  background-color: #E8CCAD;
   box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
 }
 

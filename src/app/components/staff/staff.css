@@ -139,8 +139,8 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #EC8028;
+  box-shadow: 0 0 0 3px rgba(236, 128, 40, 0.2);
 }
 
 /* Add Button */
@@ -160,8 +160,8 @@
 }
 
 .add-staff-btn:hover {
-  background-color: #c86a20;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  background-color: #EDC558;
+  box-shadow: 0 4px 12px rgba(236, 128, 40, 0.3);
 }
 
 /* Staff Table Container */
@@ -278,9 +278,9 @@
 }
 
 .action-btn:hover {
-  background-color: #4aa9a2;
-  border-color: #3b82f6;
-  color: #000000;
+  background-color: #52A9A2;
+  border-color: #52A9A2;
+  color: white;
 }
 
 .dropdown-menu {
