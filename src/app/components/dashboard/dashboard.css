@@ -400,12 +400,29 @@
 
 .charts-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.charts-row-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
   margin-bottom: 24px;
 }
 
 .chart-card {
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.chart-card-month {
+  min-height: 450px;
   background: white;
   border-radius: 16px;
   padding: 18px;
@@ -415,12 +432,33 @@
   margin-button: 24px;
 }
 
-.chart-card:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+.chart-card-trend {
+   min-height: 360px;
+   background: white;
+   border-radius: 16px;
+   padding: 18px;
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+   border: 1px solid #f1f5f9;
+   transition: all 0.2s ease;
+   margin-button: 24px;
 }
 
-.chart-card-small {
+.chart-card-month:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+
+.chart-card-trend:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+
+.chart-card-small-pie,
+.chart-card-small-status,
+.chart-card-small-top {
   min-height: 380px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
