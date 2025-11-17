@@ -1,4 +1,5 @@
 /* Staff Page Styles */
+
 .staff-container {
   margin: 1rem;
   padding: 1.5rem;
@@ -37,14 +38,17 @@
 }
 
 .staff-title h1 {
-  color: #1f2937;
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
+  background: linear-gradient(135deg, #EC8028, #EDC558);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
+
 .staff-subtitle {
-  color: #6b7280;
+  color: #fda4af;
   font-size: 0.9rem;
   margin: 0.5rem 0 0 0;
 }
@@ -71,6 +75,9 @@
   position: relative;
   flex: 1;
   max-width: 400px;
+  border-radius: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  backdrop-filter: blur(4px);
 }
 
 .search-input {
@@ -84,8 +91,8 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #66BCB4;
+  box-shadow: 0 0 0 3px rgba(102, 188, 180, 0.2);
 }
 
 .search-icon {
@@ -93,13 +100,14 @@
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  padding: 0.75rem;
+  color: #66BCB4;
   font-size: 1rem;
 }
 
 /* Stats Card */
 .stats-card {
-  background-color: #f8fafc;
+  background: linear-gradient(135deg, #ff9a44, #fc6076);
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1rem;
@@ -110,12 +118,12 @@
 .stats-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
 }
 
 .stats-label {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: #ffffff;
   margin-top: 0.25rem;
 }
 
@@ -137,7 +145,7 @@
 
 /* Add Button */
 .add-staff-btn {
-  background-color: #3b82f6;
+  background-color: #EC8028;
   color: white;
   border: none;
   padding: 0.75rem 1.25rem;
@@ -152,7 +160,7 @@
 }
 
 .add-staff-btn:hover {
-  background-color: #2563eb;
+  background-color: #c86a20;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
@@ -255,7 +263,8 @@
 }
 
 .action-btn {
-  background: #3b82f6;
+  background: #66BCB4;
+  border-color: #66BCB4;
   border: 1px solid #d1d5db;
   padding: 0.4rem 1rem;
   border-radius: 0.4rem;
@@ -269,7 +278,7 @@
 }
 
 .action-btn:hover {
-  background-color: #f1f5f9;
+  background-color: #4aa9a2;
   border-color: #3b82f6;
   color: #000000;
 }

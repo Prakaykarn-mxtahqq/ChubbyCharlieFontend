@@ -264,7 +264,6 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  min-height: 220px;
   font-size: 16px;
 }
 
@@ -407,30 +406,17 @@
 }
 
 .chart-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 20px 28px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
-  transition: all 0.25s ease;
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid #f1f5f9;
-  position: relative;
+  transition: all 0.2s ease;
+  margin-button: 24px;
 }
 
 .chart-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
-}
-
-.chart-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #4f46e5, #7c3aed);
-  border-top-left-radius: 18px;
-  border-top-right-radius: 18px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
 .chart-card-small {
@@ -438,20 +424,20 @@
 }
 
 .chart-header {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 2px solid #f1f5f9;
-  padding-bottom: 10px;
 }
 
 .chart-title {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 600;
   color: #1e293b;
-  letter-spacing: -0.2px;
+  margin: 0;
 }
 
 .chart-body {
-  height: 320px;
+  height: 340px;
   position: relative;
 }
 
