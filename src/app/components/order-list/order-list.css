@@ -20,17 +20,18 @@
 }
 
 .stats-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #E8CCAD 0%, #EDC558 100%);
   padding: 1rem 1.5rem;
-  border-radius: 8px;
-  color: white;
+  border-radius: 12px;
+  color: #47392E;
   text-align: center;
   min-width: 150px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 4px 12px rgba(232, 204, 173, 0.3);
+  border: 1px solid rgba(255,255,255,0.4);
 }
 
 .stats-card.revenue {
-  background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+  background: linear-gradient(135deg, #66BCB4 0%, #3AC7A3 100%);
   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
 }
 
@@ -104,8 +105,8 @@
 .order-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #E8CCAD 0%, #EC8028 100%);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,16 +145,17 @@
 .search-input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 8px;
+  border: 2px solid #e5d8ca;
+  border-radius: 10px;
   font-size: 0.95rem;
-  transition: all 0.2s;
+  transition: 0.25s;
+  background: #fffcfa;
 }
 
 .search-input:focus {
+  border-color: #EC8028;
+  box-shadow: 0 0 0 3px rgba(236, 128, 40, 0.2);
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .order-controls-right {
@@ -207,16 +209,16 @@
 
 .add-order-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #9D50BB 0%, #6E48AA 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-weight: 500;
+  border-radius: 10px;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: transform 0.2s;
+  transition: 0.2s;
 }
 
 .add-order-btn:hover {
@@ -376,9 +378,9 @@
   right: 0;
   top: 100%;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  border: 1px solid #e8ded3;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
   min-width: 200px;
   z-index: 1000;
   opacity: 0;

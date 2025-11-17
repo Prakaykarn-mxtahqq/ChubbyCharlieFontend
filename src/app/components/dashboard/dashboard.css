@@ -249,21 +249,22 @@
 
 .transaction-summary {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
   margin-bottom: 32px;
 }
 
 .transaction-card {
   background: white;
   border-radius: 20px;
-  padding: 28px;
+  padding: 36px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  font-size: 16px;
 }
 
 .transaction-card::before {
@@ -399,26 +400,65 @@
 
 .charts-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-  gap: 28px;
-  margin-bottom: 32px;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.charts-row-footer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .chart-card {
   background: white;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  border: 1px solid #f1f5f9;
+  transition: all 0.3s ease;
+}
+
+.chart-card-month {
+  min-height: 450px;
+  background: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 18px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid #f1f5f9;
   transition: all 0.2s ease;
+  margin-button: 24px;
 }
 
-.chart-card:hover {
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+.chart-card-trend {
+   min-height: 360px;
+   background: white;
+   border-radius: 16px;
+   padding: 18px;
+   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+   border: 1px solid #f1f5f9;
+   transition: all 0.2s ease;
+   margin-button: 24px;
 }
 
-.chart-card-small {
+.chart-card-month:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+
+.chart-card-trend:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.12);
+}
+
+.chart-card-small-pie,
+.chart-card-small-status,
+.chart-card-small-top {
   min-height: 380px;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
@@ -453,57 +493,6 @@
   .header-content { flex-direction: column; align-items: stretch; }
   .refresh-button { width: 100%; justify-content: center; }
   .dashboard-title { font-size: 26px; }
-} ตรง .summary-card {
-  position: relative;
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  display: flex;
-  gap: 18px;
-  align-items: center;
-  overflow: hidden;
-  border: 1px solid #f1f5f9;
 }
 
-.summary-card.card-indigo::before {
-  content: "";
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle at top right,
-      rgba(99, 102, 241, 0.4),
-      rgba(129, 140, 248, 0.2),
-      transparent);
-  border-bottom-left-radius: 60px;
-}
 
-.summary-card.card-amber::before {
-  content: "";
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle at top right,
-      rgba(245, 158, 11, 0.4),
-      rgba(251, 191, 36, 0.2),
-      transparent);
-  border-bottom-left-radius: 60px;
-}
-
-.summary-card.card-green::before {
-  content: "";
-  position: absolute;
-  top: -30px;
-  right: -30px;
-  width: 150px;
-  height: 150px;
-  background: radial-gradient(circle at top right,
-      rgba(34, 197, 94, 0.4),
-      rgba(74, 222, 128, 0.2),
-      transparent);
-  border-bottom-left-radius: 60px;
-}

@@ -11,8 +11,11 @@
 }
 
 .customer-header {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+   padding: 1.5rem;
+   border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+   background: rgba(255, 255, 255, 0.25);
+   border-radius: 12px;
+   backdrop-filter: blur(8px);
 }
 
 .customer-header-top {
@@ -23,26 +26,26 @@
 }
 
 .customer-icon {
-  width: 40px;
-  height: 40px;
-  background-color: #eff6ff;
-  border-radius: 10px;
+  width: 46px;
+  height: 46px;
+  background-color: #66BCB4;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #3b82f6;
-  font-size: 1.25rem;
+  color: white;
+  font-size: 1.4rem;
+  box-shadow: 0 3px 6px rgba(102, 188, 180, 0.3);
 }
 
 .customer-title h1 {
-  color: #1f2937;
-  font-size: 1.5rem;
+  color: #4A3F35;
+  font-size: 1.7rem;
   font-weight: 700;
-  margin: 0;
 }
 
 .customer-subtitle {
-  color: #6b7280;
+  color: #775F4C;
   font-size: 0.9rem;
   margin: 0.5rem 0 0 0;
 }
@@ -72,7 +75,7 @@
 .search-input {
   width: 100%;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 1px solid #d1d5db;
+  border: 1px solid #E8CCAD;
   border-radius: 0.5rem;
   font-size: 0.9rem;
   transition: all 0.2s ease;
@@ -80,8 +83,8 @@
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #EC8028;
+  box-shadow: 0 0 0 3px rgba(236, 128, 40, 0.25);
 }
 
 .search-icon {
@@ -94,8 +97,8 @@
 }
 
 .stats-card {
-  background-color: #f8fafc;
-  border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #ff9a44, #fc6076);
+  border: 1px solid #E8CCAD;
   border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
@@ -105,17 +108,17 @@
 .stats-number {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1f2937;
+  color: white;
 }
 
 .stats-label {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: white;
   margin-top: 0.25rem;
 }
 
 .add-customer-btn {
-  background-color: #3b82f6;
+  background-color: #EC8028;
   color: white;
   border: none;
   padding: 0.75rem 1.25rem;
@@ -130,8 +133,8 @@
 }
 
 .add-customer-btn:hover {
-  background-color: #2563eb;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+  background-color: #d96f1d;
+  box-shadow: 0 4px 12px rgba(236, 128, 40, 0.3);
 }
 
 .customer-table-container {
@@ -210,8 +213,8 @@
 }
 
 .action-btn {
-  background: #3b82f6;
-  border: 1px solid #d1d5db;
+  background: #66BCB4;
+  border: none;
   padding: 0.4rem 1rem;
   border-radius: 0.4rem;
   font-size: 0.8rem;
@@ -224,7 +227,7 @@
 }
 
 .action-btn:hover {
-  background-color: #f1f5f9;
+  background-color: #4ea59e;
   border-color: #3b82f6;
   color: #000000;
 }
@@ -233,7 +236,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background-color: #ffffff;
+  border-color: #E8CCAD;
   border: 1px solid #e5e7eb;
   border-radius: 0.4rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -262,8 +265,8 @@
 }
 
 .dropdown-item:hover {
-  background-color: #f1f5f9;
-  color: #3b82f6;
+  background-color: #E8CCAD;
+    color: #4A3F35;
 }
 
 .pagination-container {
@@ -293,18 +296,19 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
+  border-color: #E8CCAD;
 }
 
 .page-link:hover {
-  background-color: #3b82f6;
+  background-color: #EC8028;
   color: white;
-  border-color: #3b82f6;
+  border-color: #EC8028;
 }
 
 .page-item.active .page-link {
-  background-color: #3b82f6;
+  background-color: #EC8028;
   color: white;
-  border-color: #3b82f6;
+  border-color: #EC8028;
 }
 
 .page-item.disabled .page-link {
@@ -430,6 +434,6 @@
 }
 
 .table-wrapper::-webkit-scrollbar-thumb {
-  background: #a1a1aa;
+  background: #EDC558;
   border-radius: 4px;
 }
