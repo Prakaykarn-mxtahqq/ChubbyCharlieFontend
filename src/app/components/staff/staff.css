@@ -162,6 +162,8 @@
 .add-staff-btn:hover {
   background-color: #EDC558;
   box-shadow: 0 4px 12px rgba(236, 128, 40, 0.3);
+  background-color: #c86a20;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 /* Staff Table Container */
@@ -281,6 +283,9 @@
   background-color: #52A9A2;
   border-color: #52A9A2;
   color: white;
+  background-color: #4aa9a2;
+  border-color: #3b82f6;
+  color: #000000;
 }
 
 .dropdown-menu {
