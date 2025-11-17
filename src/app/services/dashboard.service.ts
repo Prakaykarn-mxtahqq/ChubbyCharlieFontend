@@ -75,20 +75,34 @@ export class DashboardService {
 
     return this.http.get<any>(`${this.apiUrl}/transactions/reports/monthly`, { params });
   }
+    //summary 6 month
+//   getLastSixMonthsTransactions(): Observable<any[]> {
+//     const now = new Date();
+//     const requests: Observable<any>[] = [];
+//
+//     for (let i = 5; i >= 0; i--) {
+//       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+//       const year = date.getFullYear();
+//       const month = date.getMonth() + 1;
+//       requests.push(this.getMonthlyTransaction(year, month));
+//     }
+//
+//     return combineLatest(requests);
+//   }
 
-  // สร้าง method ใหม่ เพื่อดึง 6 เดือนย้อนหลัง
-  getLastSixMonthsTransactions(): Observable<any[]> {
+  //1 year
+  getLastTwelveMonthsTransactions(): Observable<any[]> {
     const now = new Date();
     const requests: Observable<any>[] = [];
 
-    for (let i = 5; i >= 0; i--) { // 5 เดือนก่อนถึงเดือนนี้
+    for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const year = date.getFullYear();
-      const month = date.getMonth() + 1; // JS month เริ่ม 0
+      const month = date.getMonth() + 1;
       requests.push(this.getMonthlyTransaction(year, month));
     }
 
-    return combineLatest(requests); // ส่งกลับเป็น array ของ 6 เดือน
+    return combineLatest(requests);
   }
 
   getOrdersByStatus(status: string): Observable<any[]> {
