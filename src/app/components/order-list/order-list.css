@@ -20,6 +20,10 @@
 }
 
 .stats-card {
+  background: linear-gradient(135deg, #382020, #412234);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  color: #F7F6EB;
   background: linear-gradient(135deg, #E8CCAD 0%, #EDC558 100%);
   padding: 1rem 1.5rem;
   border-radius: 12px;
@@ -31,6 +35,9 @@
 }
 
 .stats-card.revenue {
+  background: linear-gradient(135deg, #FFc957 0%, #FF855A 100%);
+  color: #382020;
+  box-shadow: 0 4px 12px rgba(255, 133, 90, 0.3);
   background: linear-gradient(135deg, #66BCB4 0%, #3AC7A3 100%);
   box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
 }
@@ -191,7 +198,7 @@
 
 .upload-btn {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: linear-gradient(135deg, #66BCB4 0%, #3AA29A 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -205,10 +212,13 @@
 
 .upload-btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102,188,180,0.3);
 }
 
 .add-order-btn {
   padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #EDC558 0%, #EC8028 100%);
+  color: #212529;
   background: linear-gradient(135deg, #9D50BB 0%, #6E48AA 100%);
   color: white;
   border: none;
@@ -223,6 +233,7 @@
 
 .add-order-btn:hover {
   transform: translateY(-2px);
+  background: linear-gradient(135deg, #EC8028 0%, #EDC558 100%);
 }
 
 .order-table-container {

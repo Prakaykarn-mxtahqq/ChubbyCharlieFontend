@@ -22,7 +22,7 @@
 .header-left h1 {
   font-size: 2rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #66BCB4;
   margin: 0 0 0.5rem 0;
 }
 
@@ -33,7 +33,7 @@
 }
 
 .add-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #EC8028 0%, #EDC558 100%);
   color: white;
   border: none;
   padding: 0.875rem 1.75rem;
@@ -72,6 +72,46 @@
   display: flex;
   gap: 1.25rem;
   transition: all 0.3s ease;
+  position: relative;
+}
+
+.summary-card.income::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at top right, #10b981 0%, transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+.summary-card.expense::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at top right, #EC8028 0%, transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+  border-radius: 16px;
+}
+
+.summary-card.net::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: radial-gradient(circle at top right, #3b82f6 0%, transparent 70%);
+  opacity: 0.1;
+  pointer-events: none;
+  border-radius: 16px;
 }
 
 .summary-card:hover {
@@ -111,7 +151,7 @@
 }
 
 .summary-card.expense .card-icon {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  background: linear-gradient(135deg, #EC8028 0%, #d95b1e 100%);
   color: white;
 }
 
